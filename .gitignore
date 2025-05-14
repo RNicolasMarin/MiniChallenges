@@ -13,3 +13,9 @@
 .externalNativeBuild
 .cxx
 local.properties
+/.idea/vcs.xml
+/.idea/runConfigurations.xml
+/.idea/kotlinc.xml
+/.idea/deploymentTargetSelector.xml
+/.idea/deploymentTargetDropDown.xml
+/.idea/AndroidProjectSystem.xml
