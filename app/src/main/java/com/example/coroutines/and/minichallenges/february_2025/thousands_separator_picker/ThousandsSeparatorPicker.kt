@@ -1,6 +1,7 @@
 package com.example.coroutines.and.minichallenges.february_2025.thousands_separator_picker
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,7 +12,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -26,6 +32,7 @@ Already Done
 Include a title text: "Thousands separator"
 Horizontal bar with three different options and rounded corners
 The option's text color changes based on whether its selected or not
+The component always has one of the options selected, which is indicated by a white rounded rectangle
 * */
 
 @Composable
@@ -36,6 +43,8 @@ fun ThousandsSeparatorPicker(
     val option1 = "1.000"
     val option2 = "1,000"
     val option3 = "1 000"
+    var selected by remember { mutableStateOf(option1) }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -62,17 +71,26 @@ fun ThousandsSeparatorPicker(
         ) {
             ThousandsSeparatorNumber(
                 number = option1,
-                selected = true,
+                selected = selected == option1,
+                onClick = {
+                    selected = option1
+                },
                 modifier = Modifier.weight(1f)
             )
             ThousandsSeparatorNumber(
                 number = option2,
-                selected = false,
+                selected = selected == option2,
+                onClick = {
+                    selected = option2
+                },
                 modifier = Modifier.weight(1f)
             )
             ThousandsSeparatorNumber(
                 number = option3,
-                selected = false,
+                selected = selected == option3,
+                onClick = {
+                    selected = option3
+                },
                 modifier = Modifier.weight(1f)
             )
         }
@@ -83,6 +101,7 @@ fun ThousandsSeparatorPicker(
 fun ThousandsSeparatorNumber(
     number: String,
     selected: Boolean,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Text(
@@ -96,12 +115,12 @@ fun ThousandsSeparatorNumber(
         modifier = modifier
             .then(
                 if (selected)
-                    Modifier.background(
-                        color = Color(0xFFFFFFFF),
-                        shape = RoundedCornerShape(12.dp)
-                    )
+                    Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFFFFFFFF))
                 else Modifier
             )
+            .clickable(onClick = onClick)
             .padding(vertical = 8.dp)
     )
 }
@@ -122,7 +141,7 @@ Create a UI component that highlights one of the available options and updates i
 
 Requirements
 
-The component always has one of the options selected, which is indicated by a white rounded rectangle
+
 
 Optional Extension - animate the change in selection
 
