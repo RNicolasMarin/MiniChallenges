@@ -35,20 +35,18 @@ import com.example.coroutines.and.minichallenges.ui.theme.MiniChallengesTheme
 
 @Composable
 fun ThousandsSeparatorPicker(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    text: String = "Thousands separator",//In case the component could be used with other values
+    options: List<String> = listOf("1.000", "1,000", "1 000"),
+    onClickOption: (Int) -> Unit = {}
 ) {
-    val text = "Thousands separator"
-    val option1 = "1.000"
-    val option2 = "1,000"
-    val option3 = "1 000"
-
-    var selectedOption by remember { mutableIntStateOf(1) }
+    var selectedOption by remember { mutableIntStateOf(0) }
 
     var textHeightDp by remember { mutableStateOf(0.dp) }
     var textWidthDp by remember { mutableStateOf(0.dp) }
 
     val animatedOffset by animateDpAsState(
-        targetValue = (textWidthDp) * (selectedOption - 1),
+        targetValue = (textWidthDp) * (selectedOption),
         label = "IndicatorOffset"
     )
 
@@ -88,39 +86,28 @@ fun ThousandsSeparatorPicker(
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp))
             ) {
-                ThousandsSeparatorNumber(
-                    number = option1,
-                    selected = selectedOption == 1,
-                    onClick = {
-                        selectedOption = 1
-                    },
-                    modifier = Modifier
-                        .weight(1f)
-                        .onGloballyPositioned { coordinates ->
-                            if (textHeightDp == 0.dp) {
-                                textHeightDp = with(density) { coordinates.size.height.toDp() }
-                            }
-                            if (textWidthDp == 0.dp) {
-                                textWidthDp = with(density) { coordinates.size.width.toDp() }
-                            }
-                        }
-                )
-                ThousandsSeparatorNumber(
-                    number = option2,
-                    selected = selectedOption == 2,
-                    onClick = {
-                        selectedOption = 2
-                    },
-                    modifier = Modifier.weight(1f)
-                )
-                ThousandsSeparatorNumber(
-                    number = option3,
-                    selected = selectedOption == 3,
-                    onClick = {
-                        selectedOption = 3
-                    },
-                    modifier = Modifier.weight(1f)
-                )
+                options.forEachIndexed { index, option ->
+                    ThousandsSeparatorNumber(
+                        number = options[index],
+                        selected = selectedOption == index,
+                        onClick = {
+                            onClickOption(index)
+                            selectedOption = index
+                        },
+                        modifier = Modifier
+                            .weight(1f)
+                            .then(
+                                if (textHeightDp == 0.dp && textWidthDp == 0.dp) {
+                                    Modifier.onGloballyPositioned { coordinates ->
+                                        textHeightDp = with(density) { coordinates.size.height.toDp() }
+                                        textWidthDp = with(density) { coordinates.size.width.toDp() }
+                                    }
+                                } else {
+                                    Modifier
+                                }
+                            )
+                    )
+                }
             }
         }
     }
@@ -153,7 +140,10 @@ fun ThousandsSeparatorNumber(
 private fun ThousandsSeparatorPickerPreview() {
     MiniChallengesTheme {
         ThousandsSeparatorPicker(
-            modifier = Modifier.fillMaxWidth().padding(16.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color(0xFFFEF7FF))
+                .padding(16.dp)
         )
     }
 }
