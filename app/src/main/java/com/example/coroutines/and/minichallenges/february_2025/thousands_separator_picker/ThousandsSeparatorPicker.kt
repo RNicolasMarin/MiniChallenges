@@ -20,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,7 +41,7 @@ fun ThousandsSeparatorPicker(
     options: List<String> = listOf("1.000", "1,000", "1 000"),
     onClickOption: (Int) -> Unit = {}
 ) {
-    var selectedOption by remember { mutableIntStateOf(0) }
+    var selectedOption by rememberSaveable { mutableIntStateOf(0) }
 
     var textHeightDp by remember { mutableStateOf(0.dp) }
     var textWidthDp by remember { mutableStateOf(0.dp) }
