@@ -14,6 +14,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -30,8 +32,13 @@ Show a heart ♥️ and clover 🍀 icon at both ends of the battery level indic
 
 @Composable
 fun BatteryIndicatorUI(
+    percentage: Int,
     modifier: Modifier = Modifier
 ) {
+    val batterySegments = divideIntoChunks(percentage, 20)
+    val spaceAroundBatteryDp = 16.dp
+    val iconsSizeDp = 48.dp
+    
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
@@ -40,44 +47,95 @@ fun BatteryIndicatorUI(
             painter = painterResource(R.drawable.heart),
             contentDescription = "Heart",
             tint = Red,
-            modifier = Modifier.size(48.dp),
+            modifier = Modifier.size(iconsSizeDp),
         )
 
-        Spacer(Modifier.width(16.dp))
+        Spacer(Modifier.width(spaceAroundBatteryDp))
 
         Canvas(modifier = Modifier.weight(1f).height(68.dp)) {
-            val canvasWidth = size.width
-            val canvasHeight = size.height
+            val canvasWidthPx = size.width
+            val canvasHeightPx = size.height
 
-            val path1 = Path().apply {
+            val batteryEndWidthPx = 10.dp.toPx()
+            val batteryEndHeightPx = 25.dp.toPx()
+            
+            val batteryPaddingPx = 4.dp.toPx()
+            val spaceBetweenPx = 2.dp.toPx()
+
+            val batteryBackgroundWidthPx = canvasWidthPx - batteryEndWidthPx / 2
+            val batterySegmentWidthPx = (batteryBackgroundWidthPx - batteryPaddingPx * 2 - spaceBetweenPx * 4) / 5
+            val batterySegmentHeightPx = canvasHeightPx - batteryPaddingPx * 2
+
+            val withCornerRadius = CornerRadius(16.dp.toPx())
+            val withoutCornerRadius = CornerRadius(0.dp.toPx())
+
+            val path = Path().apply {
+
                 drawRoundRect(
                     color = White,
-                    size = Size(canvasWidth - 5.dp.toPx(), canvasHeight),
-                    cornerRadius = CornerRadius(16.dp.toPx())
+                    size = Size(batteryBackgroundWidthPx, canvasHeightPx),
+                    cornerRadius = withCornerRadius
                 )
 
                 drawRoundRect(
-                    topLeft = Offset(canvasWidth - 10.dp.toPx(), canvasHeight * 0.5f -12.dp.toPx()),
+                    topLeft = Offset(canvasWidthPx - batteryEndWidthPx, canvasHeightPx * 0.5f - batteryEndHeightPx / 2),
                     color = White,
-                    size = Size(10.dp.toPx(), 25.dp.toPx()),
-                    cornerRadius = CornerRadius(16.dp.toPx())
+                    size = Size(batteryEndWidthPx, batteryEndHeightPx),
+                    cornerRadius = withCornerRadius
                 )
+
+                (0..batterySegments.size - 1).map {
+
+                    val portionOfSegmentWidthPx = if (it == batterySegments.size - 1) batterySegments[it] * 0.05f else 1f
+
+                    val startXPx = batteryPaddingPx +
+                            batterySegmentWidthPx * it +
+                            spaceBetweenPx * it
+
+                    val leftCorners = if (it == 0) withCornerRadius else withoutCornerRadius
+                    val rightCorners = if (it == batterySegments.size - 1) withCornerRadius else withoutCornerRadius
+
+                    addRoundRect(
+                        RoundRect(
+                            rect = Rect(
+                                offset = Offset(startXPx, batteryPaddingPx),
+                                size = Size(batterySegmentWidthPx * portionOfSegmentWidthPx, batterySegmentHeightPx)
+                            ),
+                            topLeft = leftCorners,
+                            topRight = rightCorners,
+                            bottomRight = rightCorners,
+                            bottomLeft = leftCorners
+                        )
+                    )
+                }
             }
             drawPath(
-                path = path1,
+                path = path,
                 color = Red
             )
         }
 
-        Spacer(Modifier.width(16.dp))
+        Spacer(Modifier.width(spaceAroundBatteryDp))
 
         Icon(
             painter = painterResource(R.drawable.clover),
             contentDescription = "Clover",
             tint = Grey,
-            modifier = Modifier.size(48.dp),
+            modifier = Modifier.size(iconsSizeDp),
         )
     }
+}
+
+fun divideIntoChunks(total: Int, chunkSize: Int): List<Int> {
+    val fullChunks = total / chunkSize
+    val remainder = total % chunkSize
+
+    val result = MutableList(fullChunks) { chunkSize }
+    if (remainder > 0) {
+        result.add(remainder)
+    }
+
+    return result
 }
 
 @Preview(widthDp = 400, heightDp = 900, showBackground = true)
@@ -85,6 +143,7 @@ fun BatteryIndicatorUI(
 private fun ThousandsSeparatorPickerPreview() {
     MiniChallengesTheme {
         BatteryIndicatorUI(
+            percentage = 100,
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color(0xFFE7E9EF))
