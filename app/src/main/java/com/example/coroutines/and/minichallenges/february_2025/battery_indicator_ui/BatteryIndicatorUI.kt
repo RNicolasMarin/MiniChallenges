@@ -1,7 +1,14 @@
 package com.example.coroutines.and.minichallenges.february_2025.battery_indicator_ui
 
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,14 +26,29 @@ import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.example.coroutines.and.minichallenges.R
 import com.example.coroutines.and.minichallenges.ui.theme.MiniChallengesTheme
 
 /*
 Show a heart ♥️ and clover 🍀 icon at both ends of the battery level indicator
+The icons change based on the battery level percentage %
+<= 20%
+    Heart starts pulsing on repeat continuously
+    As the heart scales up, it gets more tinted with a white color
+    Clover remains greyed out and scaled-down
+>= 80%
+    The clover scales up slightly
+    The heart remains greyed out and scaled down
+> 20% and < 80%
+    Both icons are greyed and scaled-down as per the mockups
 
 * */
 
@@ -38,17 +60,106 @@ fun BatteryIndicatorUI(
     val batterySegments = divideIntoChunks(percentage, 20)
     val spaceAroundBatteryDp = 16.dp
     val iconsSizeDp = 48.dp
-    
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
     ) {
-        Icon(
-            painter = painterResource(R.drawable.heart),
-            contentDescription = "Heart",
-            tint = Red,
-            modifier = Modifier.size(iconsSizeDp),
+
+        var percentages by remember { mutableStateOf(
+            Percentages(
+                previous = percentage,
+                current = percentage
+            ))
+        }
+        if (percentages.current != percentage) {
+            percentages = Percentages(
+                previous = percentages.current,
+                current = percentage
+            )
+        }
+
+        var alphaTargetHeartInactive = when {
+            percentages.previous > 20 && percentages.current > 20 -> 1f //was and still is inactive
+
+            percentages.previous <= 20 && percentages.current <= 20 -> 0f //was and still is active
+
+            percentages.previous > 20 && percentages.current <= 20 -> 0f //was inactive and now is active
+
+            else -> 1f //was active and now is inactive
+        }
+
+        var alphaTargetHeartSmall = when {
+            percentages.previous > 20 && percentages.current > 20 -> 0f //was and still is inactive
+
+            percentages.previous <= 20 && percentages.current <= 20 -> 1f //was and still is active
+
+            percentages.previous > 20 && percentages.current <= 20 -> 1f //was inactive and now is active
+
+            else -> 0f //was active and now is inactive
+        }
+
+        val alphaAnimatedHeartInactive by animateFloatAsState(
+            targetValue = alphaTargetHeartInactive,
+            animationSpec = tween(1000),
+            label = "AlphaHeartInactiveAnimation"
         )
+
+        val alphaAnimatedHeartActive by animateFloatAsState(
+            targetValue = 1f - alphaTargetHeartInactive,
+            animationSpec = tween(1000),
+            label = "AlphaHeartActiveAnimation"
+        )
+
+        val transition = rememberInfiniteTransition(label = "AlphaTransitionHeartActive")
+
+        val alphaAnimatedHeartSmall by transition.animateFloat(
+            initialValue = alphaTargetHeartSmall,
+            targetValue = 1f - alphaTargetHeartSmall,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 1000),
+                repeatMode = RepeatMode.Reverse
+            ), label = "AlphaHeartSmallAnimation"
+        )
+
+        val alphaAnimatedHeartBig by transition.animateFloat(
+            initialValue = 1f - alphaTargetHeartSmall,
+            targetValue = alphaTargetHeartSmall,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 1000),
+                repeatMode = RepeatMode.Reverse
+            ), label = "AlphaHeartBigAnimation"
+        )
+
+        Box(modifier = Modifier.size(iconsSizeDp)) {
+            Box(modifier = Modifier.size(iconsSizeDp).graphicsLayer(alpha = alphaAnimatedHeartActive)) {
+                Icon(
+                    painter = painterResource(id = R.drawable.heart_small),
+                    contentDescription = null,
+                    tint = Color.Unspecified,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .graphicsLayer(alpha = alphaAnimatedHeartSmall)
+                )
+                Icon(
+                    painter = painterResource(id = R.drawable.heart_big),
+                    contentDescription = null,
+                    tint = Color.Unspecified,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .graphicsLayer(alpha = alphaAnimatedHeartBig)
+                )
+            }
+
+            Icon(
+                painter = painterResource(id = R.drawable.heart_inactive),
+                contentDescription = null,
+                tint = Color.Unspecified,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer(alpha = alphaAnimatedHeartInactive)
+            )
+        }
 
         Spacer(Modifier.width(spaceAroundBatteryDp))
 
@@ -111,18 +222,56 @@ fun BatteryIndicatorUI(
             }
             drawPath(
                 path = path,
-                color = Red
+                color = when {
+                    percentage <= 20 -> Red
+                    percentage >= 80 -> Green
+                    else -> Yellow
+                }
             )
         }
 
         Spacer(Modifier.width(spaceAroundBatteryDp))
 
-        Icon(
-            painter = painterResource(R.drawable.clover),
-            contentDescription = "Clover",
-            tint = Grey,
-            modifier = Modifier.size(iconsSizeDp),
+        var alphaTargetCloverInactive = when {
+            percentages.previous < 80 && percentages.current < 80 -> 1f //was and still is inactive
+
+            percentages.previous >= 80 && percentages.current >= 80 -> 0f //was and still is active
+
+            percentages.previous < 80 && percentages.current >= 80 -> 0f //was inactive and now is active
+
+            else -> 1f //was active and now is inactive
+        }
+
+        val alphaAnimatedCloverInactive by animateFloatAsState(
+            targetValue = alphaTargetCloverInactive,
+            animationSpec = tween(1000),
+            label = "AlphaCloverInactiveAnimation"
         )
+
+        val alphaAnimatedCloverActive by animateFloatAsState(
+            targetValue = 1f - alphaTargetCloverInactive,
+            animationSpec = tween(1000),
+            label = "AlphaCloverActiveAnimation"
+        )
+
+        Box(modifier = Modifier.size(iconsSizeDp)) {
+            Icon(
+                painter = painterResource(id = R.drawable.clover_inactive),
+                contentDescription = "CloverInactive",
+                tint = Color.Unspecified,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer(alpha = alphaAnimatedCloverInactive)
+            )
+            Icon(
+                painter = painterResource(id = R.drawable.clover_active),
+                contentDescription = "CloverActive",
+                tint = Color.Unspecified,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer(alpha = alphaAnimatedCloverActive)
+            )
+        }
     }
 }
 
@@ -138,12 +287,17 @@ fun divideIntoChunks(total: Int, chunkSize: Int): List<Int> {
     return result
 }
 
+data class Percentages(
+    var previous: Int,
+    var current: Int
+)
+
 @Preview(widthDp = 400, heightDp = 900, showBackground = true)
 @Composable
 private fun ThousandsSeparatorPickerPreview() {
     MiniChallengesTheme {
         BatteryIndicatorUI(
-            percentage = 100,
+            percentage = 20,
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color(0xFFE7E9EF))
@@ -158,51 +312,13 @@ Create a UI component that indicates the device's battery level with a unique an
 Requirements
 Observe the device's battery level and feed the information to the UI component
 
-The icons change based on the battery level percentage %
 
 
 
 
 
-<= 20%
 
 
-
-
-
-Heart starts pulsing on repeat continuously
-
-
-
-As the heart scales up, it gets more tinted with a white color
-
-
-
-Clover remains greyed out and scaled-down
-
-
-
->= 80%
-
-
-
-
-
-The clover scales up slightly
-
-
-
-The heart remains greyed out and scaled down
-
-
-
-> 20% and < 80%
-
-
-
-
-
-Both icons are greyed and scaled-down as per the mockups
 
 
 

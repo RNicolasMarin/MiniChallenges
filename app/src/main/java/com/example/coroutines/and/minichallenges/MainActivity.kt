@@ -8,11 +8,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.coroutines.and.minichallenges.february_2025.battery_indicator_ui.BatteryIndicatorUI
 import com.example.coroutines.and.minichallenges.ui.theme.MiniChallengesTheme
+import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,8 +36,22 @@ class MainActivity : ComponentActivity() {
                             .background(Color(0xFFFEF7FF))
                             .padding(16.dp)
                     )*/
+                    var percentages = listOf(19, 20, 21, 21, 20, 19, 79, 80, 81, 80, 79)
+                    var percentageIndex by rememberSaveable {
+                        mutableIntStateOf(0)
+                    }
+                    LaunchedEffect(true) {
+                        while (true) {
+                            delay(2000)
+                            percentageIndex++
+                            if (percentageIndex == percentages.size) {
+                                percentageIndex = 0
+                            }
+                        }
+                    }
+
                     BatteryIndicatorUI(
-                        70,
+                        percentages[percentageIndex],
                         modifier = Modifier
                             .fillMaxSize()
                             .background(Color(0xFFE7E9EF))
