@@ -36,13 +36,13 @@ class MainActivity : ComponentActivity() {
                             .background(Color(0xFFFEF7FF))
                             .padding(16.dp)
                     )*/
-                    var percentages = listOf(19, 20, 21, 21, 20, 19, 79, 80, 81, 80, 79)
+                    var percentages = listOf(7, 19, 25, 55, 75, 80, 85)
                     var percentageIndex by rememberSaveable {
                         mutableIntStateOf(0)
                     }
                     LaunchedEffect(true) {
                         while (true) {
-                            delay(2000)
+                            delay(3000)
                             percentageIndex++
                             if (percentageIndex == percentages.size) {
                                 percentageIndex = 0

@@ -1,8 +1,10 @@
 package com.example.coroutines.and.minichallenges.february_2025.battery_indicator_ui
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
@@ -50,6 +52,12 @@ The icons change based on the battery level percentage %
 > 20% and < 80%
     Both icons are greyed and scaled-down as per the mockups
 
+The bar fills using an animation so that the bar appears to extend or shrink as the battery level changes
+The bar color animates between these colours, each fully matching its color at the target % value
+    20% - Red - #FF4E51
+    50% - Yellow - #FCB966
+    80% - Green - #19D181
+
 * */
 
 @Composable
@@ -57,7 +65,36 @@ fun BatteryIndicatorUI(
     percentage: Int,
     modifier: Modifier = Modifier
 ) {
-    val batterySegments = divideIntoChunks(percentage, 20)
+    var percentages by remember { mutableStateOf(
+        Percentages(
+            previous = percentage,
+            current = percentage
+        ))
+    }
+    if (percentages.current != percentage) {
+        percentages = Percentages(
+            previous = percentages.current,
+            current = percentage
+        )
+    }
+
+    val animatedPercentages by animateIntAsState(
+        targetValue = percentages.current,
+        animationSpec = tween(1000),
+        label = "PercentagesAnimation"
+    )
+
+    val animatedBatteryColor by animateColorAsState(
+        targetValue = when {
+            percentages.current <= 20 -> Red
+            percentages.current >= 80 -> Green
+            else -> Yellow
+        },
+        animationSpec = tween(durationMillis = 1000),
+        label = "colorTransition"
+    )
+
+    val batterySegments = divideIntoChunks(animatedPercentages, 20)
     val spaceAroundBatteryDp = 16.dp
     val iconsSizeDp = 48.dp
 
@@ -65,19 +102,6 @@ fun BatteryIndicatorUI(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
     ) {
-
-        var percentages by remember { mutableStateOf(
-            Percentages(
-                previous = percentage,
-                current = percentage
-            ))
-        }
-        if (percentages.current != percentage) {
-            percentages = Percentages(
-                previous = percentages.current,
-                current = percentage
-            )
-        }
 
         var alphaTargetHeartInactive = when {
             percentages.previous > 20 && percentages.current > 20 -> 1f //was and still is inactive
@@ -222,11 +246,7 @@ fun BatteryIndicatorUI(
             }
             drawPath(
                 path = path,
-                color = when {
-                    percentage <= 20 -> Red
-                    percentage >= 80 -> Green
-                    else -> Yellow
-                }
+                color = animatedBatteryColor
             )
         }
 
@@ -312,51 +332,12 @@ Create a UI component that indicates the device's battery level with a unique an
 Requirements
 Observe the device's battery level and feed the information to the UI component
 
-
-
-
-
-
-
-
-
-
-
-The bar fills using an animation so that the bar appears to extend or shrink as the battery level changes
-
-
-
-The bar color animates between these colours, each fully matching its color at the target % value
-
-
-
-
-
-20% - Red - #FF4E51
-
-
-
-50% - Yellow - #FCB966
-
-
-
-80% - Green - #19D181
-
-
-
 Note: This is NOT a purely UI challenge; the battery level percentage must display the real battery % of the device it runs on.
 
 Tip: In your Compose @Preview function, you can animate a state variable to simulate the battery %
 
 
-
-
-
 🏆 Submission & Rewards
-
-
-
-
 
 A successful submission of this challenge via the /submit-challenge command on Discord grants you 75 XP. You can use it in any channel on Discord :)
 
