@@ -1,5 +1,12 @@
 package com.example.coroutines.and.minichallenges.february_2025.battery_indicator_ui
 
+import android.annotation.SuppressLint
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.BatteryManager
+import android.os.Build
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -19,6 +26,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -33,32 +41,65 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import com.example.coroutines.and.minichallenges.R
 import com.example.coroutines.and.minichallenges.ui.theme.MiniChallengesTheme
 
-/*
-Show a heart ♥️ and clover 🍀 icon at both ends of the battery level indicator
-The icons change based on the battery level percentage %
-<= 20%
-    Heart starts pulsing on repeat continuously
-    As the heart scales up, it gets more tinted with a white color
-    Clover remains greyed out and scaled-down
->= 80%
-    The clover scales up slightly
-    The heart remains greyed out and scaled down
-> 20% and < 80%
-    Both icons are greyed and scaled-down as per the mockups
+@Composable
+fun BatteryIndicatorUI(
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    var batteryLevel by remember { mutableIntStateOf(-1) }
 
-The bar fills using an animation so that the bar appears to extend or shrink as the battery level changes
-The bar color animates between these colours, each fully matching its color at the target % value
-    20% - Red - #FF4E51
-    50% - Yellow - #FCB966
-    80% - Green - #19D181
+    DisposableEffect(Unit) {
+        val receiver = context.observeBatteryLevel { newLevel ->
+            if (batteryLevel != newLevel) {
 
-* */
+                batteryLevel = newLevel
+            }
+        }
+        onDispose {
+            context.unregisterReceiver(receiver)
+        }
+    }
+
+    BatteryIndicatorUI(
+        percentage = batteryLevel,
+        modifier = modifier
+    )
+}
+
+fun Context.observeBatteryLevel(onLevelChanged: (Int) -> Unit): BroadcastReceiver {
+    val batteryReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val level = intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
+            val scale = intent?.getIntExtra(BatteryManager.EXTRA_SCALE, -1) ?: -1
+            if (scale > 0) {
+                val percent = level * 100 / scale
+                onLevelChanged(percent)
+            }
+        }
+    }
+
+    val filter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        // API 33+
+        registerReceiver(batteryReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+    } else {
+        // < API 33
+        @Suppress("DEPRECATION")
+        registerReceiver(batteryReceiver, filter)
+    }
+
+    return batteryReceiver
+}
 
 @Composable
 fun BatteryIndicatorUI(
@@ -324,34 +365,3 @@ private fun ThousandsSeparatorPickerPreview() {
         )
     }
 }
-
-/*
-Feature Goal
-Create a UI component that indicates the device's battery level with a unique animation for when the battery level is low and one for when the battery is sufficiently charged.
-
-Requirements
-Observe the device's battery level and feed the information to the UI component
-
-Note: This is NOT a purely UI challenge; the battery level percentage must display the real battery % of the device it runs on.
-
-Tip: In your Compose @Preview function, you can animate a state variable to simulate the battery %
-
-
-🏆 Submission & Rewards
-
-A successful submission of this challenge via the /submit-challenge command on Discord grants you 75 XP. You can use it in any channel on Discord :)
-
-
-
-A successful submission consists of these parts
-
-
-
-
-
-A link to a Gist showing your code for this challenge.
-
-
-
-A screen recording (20s max) that shows each of the battery states. You can simulate this via the Android emulator.
-* */
