@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">MiniChallenges</string>
+
+    <string name="thermometer_trek_start_title">Thermometer Treck</string>
+    <string name="thermometer_trek_start_description">Press Start to begin tracking temperature</string>
+    <string name="thermometer_trek_start_button">Start</string>
 </resources>

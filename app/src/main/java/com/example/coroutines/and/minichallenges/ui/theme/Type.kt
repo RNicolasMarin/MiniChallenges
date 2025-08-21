@@ -2,9 +2,17 @@ package com.example.coroutines.and.minichallenges.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.example.coroutines.and.minichallenges.R
+
+val HostGrotesk = FontFamily(
+    Font(R.font.host_grotesk_medium, weight = FontWeight.Medium),
+    Font(R.font.host_grotesk_semibold, weight = FontWeight.SemiBold),
+    Font(R.font.host_grotesk_regular, weight = FontWeight.Normal),
+)
 
 // Set of Material typography styles to start with
 val Typography = Typography(
