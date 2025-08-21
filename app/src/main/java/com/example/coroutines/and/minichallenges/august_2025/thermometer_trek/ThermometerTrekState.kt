@@ -3,7 +3,7 @@ package com.example.coroutines.and.minichallenges.august_2025.thermometer_trek
 import com.example.coroutines.and.minichallenges.august_2025.thermometer_trek.Status.*
 
 data class ThermometerTrekState(
-    val temperatures : List<String> = emptyList(),
+    val temperatures : List<Double> = emptyList(),
     val status: Status = CAN_START
 )
 

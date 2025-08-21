@@ -32,10 +32,15 @@ import com.example.coroutines.and.minichallenges.ui.theme.MiniChallengesTheme
 @Composable
 fun ThermometerTrek(
     modifier: Modifier = Modifier,
-    viewModel: ThermometerTrekViewModel = ThermometerTrekViewModel()
+    viewModel: ThermometerTrekViewModel = ThermometerTrekViewModel(ThermometerTrekRepository())
 ) {
     when (viewModel.state.status) {
-        CAN_START -> ThermometerTrekStart(modifier = modifier)
+        CAN_START -> ThermometerTrekStart(
+            modifier = modifier,
+            onStartOrReset = {
+                viewModel.startThermometer()
+            }
+        )
         TRACKING -> Unit
         CAN_RESET -> Unit
     }
@@ -44,7 +49,8 @@ fun ThermometerTrek(
 
 @Composable
 fun ThermometerTrekStart(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onStartOrReset: () -> Unit
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -86,7 +92,7 @@ fun ThermometerTrekStart(
 
         ThermometerTrekButton(
             textRes = R.string.thermometer_trek_start_button,
-            onClick = {}
+            onClick = onStartOrReset
         )
     }
 }
@@ -132,7 +138,8 @@ fun ThermometerTrekButton(
 private fun ThermometerTrekPreview() {
     MiniChallengesTheme {
         ThermometerTrekStart(
-            Modifier
+            onStartOrReset = {},
+            modifier = Modifier
                 .fillMaxWidth()
                 .background(Color(0xFFF4F6F6))
                 .padding(24.dp)
