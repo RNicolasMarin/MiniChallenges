@@ -2,19 +2,25 @@ package com.example.coroutines.and.minichallenges.august_2025.thermometer_trek
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -32,17 +38,29 @@ import com.example.coroutines.and.minichallenges.ui.theme.MiniChallengesTheme
 @Composable
 fun ThermometerTrek(
     modifier: Modifier = Modifier,
-    viewModel: ThermometerTrekViewModel = ThermometerTrekViewModel(ThermometerTrekRepository())
+    viewModel: ThermometerTrekViewModel// = ThermometerTrekViewModel(ThermometerTrekRepository())
 ) {
     when (viewModel.state.status) {
         CAN_START -> ThermometerTrekStart(
             modifier = modifier,
             onStartOrReset = {
-                viewModel.startThermometer()
+                viewModel.startRestartThermometer()
             }
         )
-        TRACKING -> Unit
-        CAN_RESET -> Unit
+        TRACKING -> ThermometerTrekTracking(
+            modifier = modifier,
+            state = viewModel.state,
+            onStartOrReset = {
+                viewModel.startRestartThermometer()
+            }
+        )
+        CAN_RESET -> ThermometerTrekTracking(
+            modifier = modifier,
+            state = viewModel.state,
+            onStartOrReset = {
+                viewModel.startRestartThermometer()
+            }
+        )
     }
 
 }
@@ -52,6 +70,7 @@ fun ThermometerTrekStart(
     modifier: Modifier = Modifier,
     onStartOrReset: () -> Unit
 ) {
+    //println("ThermometerTrekStart")
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
@@ -98,6 +117,90 @@ fun ThermometerTrekStart(
 }
 
 @Composable
+fun ThermometerTrekTracking(
+    state: ThermometerTrekState,
+    modifier: Modifier = Modifier,
+    onStartOrReset: () -> Unit
+) {
+    //println("ThermometerTrekTracking")
+    Column(
+        horizontalAlignment = Alignment.Start,
+        modifier = modifier
+            .background(Color(0xFFFFFFFF), RoundedCornerShape(16.dp))
+            .padding(24.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.thermometer_trek_start_title),
+            style = TextStyle(
+                fontFamily = HostGrotesk,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 28.sp,
+                lineHeight = 32.sp,
+                letterSpacing = 0.sp
+            ),
+            color = Color(0xFF2E3642)
+        )
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.check_circle),
+                tint = if (state.status == TRACKING) Color(0xFFB4BDCA) else Color(0xFF37B98B),
+                contentDescription = "Check",
+                modifier = Modifier
+                    .size(16.dp)
+            )
+
+            Spacer(modifier = Modifier.width(4.dp))
+
+            val amount = "${state.temperatures.size}${stringResource(R.string.thermometer_trek_tracking_total)}"
+
+            Text(
+                text = amount,
+                style = TextStyle(
+                    fontFamily = HostGrotesk,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 17.sp,
+                    lineHeight = 20.sp,
+                    letterSpacing = 0.sp
+                ),
+                color = Color(0xFF66707F)
+            )
+        }
+
+        /*Text(
+            text = stringResource(R.string.thermometer_trek_start_description),
+            style = TextStyle(
+                fontFamily = HostGrotesk,
+                fontWeight = FontWeight.Normal,
+                fontSize = 17.sp,
+                lineHeight = 20.sp,
+                letterSpacing = 0.sp
+            ),
+            color = Color(0xFF66707F),
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )*/
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            ThermometerTrekButton(
+                textRes = if (state.status == TRACKING) R.string.thermometer_trek_tracking_button else R.string.thermometer_trek_reset_button,
+                enable = state.status == CAN_RESET,
+                onClick = onStartOrReset
+            )
+        }
+    }
+}
+
+@Composable
 fun ThermometerTrekButton(
     @StringRes textRes: Int,
     modifier: Modifier = Modifier,
@@ -127,7 +230,7 @@ fun ThermometerTrekButton(
                 lineHeight = 20.sp,
                 letterSpacing = 0.sp
             ),
-            color = Color(0xFFFFFFFF),
+            color = if (enable) Color(0xFFFFFFFF) else Color(0xFFB4BDCA),
             textAlign = TextAlign.Center
         )
     }
@@ -141,8 +244,6 @@ private fun ThermometerTrekPreview() {
             onStartOrReset = {},
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color(0xFFF4F6F6))
-                .padding(24.dp)
         )
     }
 }

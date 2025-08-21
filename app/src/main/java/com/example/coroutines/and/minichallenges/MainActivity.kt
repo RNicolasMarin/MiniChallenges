@@ -15,6 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.coroutines.and.minichallenges.august_2025.thermometer_trek.ThermometerTrek
+import com.example.coroutines.and.minichallenges.august_2025.thermometer_trek.ThermometerTrekRepository
+import com.example.coroutines.and.minichallenges.august_2025.thermometer_trek.ThermometerTrekViewModel
 import com.example.coroutines.and.minichallenges.ui.theme.MiniChallengesTheme
 
 class MainActivity : ComponentActivity() {
@@ -35,6 +37,7 @@ class MainActivity : ComponentActivity() {
                             .padding(24.dp)
                     ) {
                         ThermometerTrek(
+                            viewModel = ThermometerTrekViewModel(ThermometerTrekRepository()),
                             modifier = Modifier
                                 .fillMaxWidth()
 

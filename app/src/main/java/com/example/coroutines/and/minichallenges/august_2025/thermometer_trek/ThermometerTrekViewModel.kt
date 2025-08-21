@@ -20,9 +20,10 @@ class ThermometerTrekViewModel(
     var state by mutableStateOf(ThermometerTrekState())
         private set
 
-    fun startThermometer() {
+    fun startRestartThermometer() {
         state = state.copy(
-            status = TRACKING
+            status = TRACKING,
+            temperatures = emptyList()
         )
 
         viewModelScope.launch {

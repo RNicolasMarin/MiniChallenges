@@ -4,4 +4,9 @@
     <string name="thermometer_trek_start_title">Thermometer Treck</string>
     <string name="thermometer_trek_start_description">Press Start to begin tracking temperature</string>
     <string name="thermometer_trek_start_button">Start</string>
+
+    <string name="thermometer_trek_tracking_total">/20</string>
+    <string name="thermometer_trek_tracking_button">Tracking…</string>
+
+    <string name="thermometer_trek_reset_button">Reset</string>
 </resources>
