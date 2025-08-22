@@ -14,4 +14,6 @@
     <string name="order_queue_outpost_start_title">Order Queue Outpost</string>
     <string name="order_queue_outpost_start_description">Press Play to start processing orders.</string>
     <string name="order_queue_outpost_start_button">Start</string>
+
+    <string name="order_queue_outpost_going_button">Pause</string>
 </resources>

@@ -32,9 +32,10 @@ fun OrderQueueOutpost(
 ) {
     when (viewModel.state.status) {
         CAN_START -> OrderQueueOutpostStart(
+            state = viewModel.state,
             modifier = modifier,
             onStartOrReset = {
-                //viewModel.startRestartThermometer()
+                viewModel.startProducer()
             }
         )
         PAUSED -> {}
@@ -44,6 +45,7 @@ fun OrderQueueOutpost(
 
 @Composable
 fun OrderQueueOutpostStart(
+    state: OrderQueueOutpostState,
     modifier: Modifier = Modifier,
     onStartOrReset: () -> Unit
 ) {
@@ -74,7 +76,7 @@ fun OrderQueueOutpostStart(
         Spacer(modifier = Modifier.height(32.dp))
 
         OrderQueueOutpostButton(
-            textRes = R.string.order_queue_outpost_start_button,
+            isGoing = state.status == GOING,
             onClick = onStartOrReset
         )
     }
