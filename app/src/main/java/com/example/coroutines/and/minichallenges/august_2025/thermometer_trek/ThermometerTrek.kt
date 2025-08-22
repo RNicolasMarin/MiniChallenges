@@ -2,6 +2,7 @@ package com.example.coroutines.and.minichallenges.august_2025.thermometer_trek
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,6 +12,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -34,11 +37,12 @@ import com.example.coroutines.and.minichallenges.august_2025.thermometer_trek.St
 import com.example.coroutines.and.minichallenges.august_2025.thermometer_trek.Status.TRACKING
 import com.example.coroutines.and.minichallenges.ui.theme.HostGrotesk
 import com.example.coroutines.and.minichallenges.ui.theme.MiniChallengesTheme
+import kotlin.math.round
 
 @Composable
 fun ThermometerTrek(
     modifier: Modifier = Modifier,
-    viewModel: ThermometerTrekViewModel// = ThermometerTrekViewModel(ThermometerTrekRepository())
+    viewModel: ThermometerTrekViewModel
 ) {
     when (viewModel.state.status) {
         CAN_START -> ThermometerTrekStart(
@@ -47,14 +51,7 @@ fun ThermometerTrek(
                 viewModel.startRestartThermometer()
             }
         )
-        TRACKING -> ThermometerTrekTracking(
-            modifier = modifier,
-            state = viewModel.state,
-            onStartOrReset = {
-                viewModel.startRestartThermometer()
-            }
-        )
-        CAN_RESET -> ThermometerTrekTracking(
+        TRACKING, CAN_RESET -> ThermometerTrekTracking(
             modifier = modifier,
             state = viewModel.state,
             onStartOrReset = {
@@ -62,7 +59,6 @@ fun ThermometerTrek(
             }
         )
     }
-
 }
 
 @Composable
@@ -70,7 +66,6 @@ fun ThermometerTrekStart(
     modifier: Modifier = Modifier,
     onStartOrReset: () -> Unit
 ) {
-    //println("ThermometerTrekStart")
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
@@ -122,7 +117,6 @@ fun ThermometerTrekTracking(
     modifier: Modifier = Modifier,
     onStartOrReset: () -> Unit
 ) {
-    //println("ThermometerTrekTracking")
     Column(
         horizontalAlignment = Alignment.Start,
         modifier = modifier
@@ -171,19 +165,24 @@ fun ThermometerTrekTracking(
             )
         }
 
-        /*Text(
-            text = stringResource(R.string.thermometer_trek_start_description),
-            style = TextStyle(
-                fontFamily = HostGrotesk,
-                fontWeight = FontWeight.Normal,
-                fontSize = 17.sp,
-                lineHeight = 20.sp,
-                letterSpacing = 0.sp
-            ),
-            color = Color(0xFF66707F),
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
-        )*/
+        Spacer(modifier = Modifier.height(20.dp))
+
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            items(20) { index ->
+                val correctedIndex = if (index % 2 == 0) index / 2 else 10 + (index.toDouble() / 2).toInt() //index + 10 - ceil(index.toDouble() / 2).toInt()
+
+                TemperatureItem(
+                    modifier = Modifier,
+                    item = state.temperatures.getOrNull(correctedIndex)
+                )
+            }
+        }
 
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -201,6 +200,45 @@ fun ThermometerTrekTracking(
 }
 
 @Composable
+fun TemperatureItem(
+    item: Double?,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.thermometer),
+            tint = if (item == null) Color(0xFFB4BDCA) else Color(0xFF37B98B),
+            contentDescription = "Thermometer",
+            modifier = Modifier
+                .size(16.dp)
+        )
+
+        Spacer(modifier = Modifier.width(4.dp))
+
+        val temperature = item?.let {
+             "${(round(it * 10) / 10)} °F"
+        } ?: run {
+            ""
+        }
+
+        Text(
+            text = temperature,
+            style = TextStyle(
+                fontFamily = HostGrotesk,
+                fontWeight = FontWeight.Medium,
+                fontSize = 17.sp,
+                lineHeight = 20.sp,
+                letterSpacing = 0.sp
+            ),
+            color = Color(0xFF2E3642)
+        )
+    }
+}
+
+@Composable
 fun ThermometerTrekButton(
     @StringRes textRes: Int,
     modifier: Modifier = Modifier,
@@ -209,7 +247,6 @@ fun ThermometerTrekButton(
 ) {
     Button(
         modifier = modifier
-            //.background(Color(0xFF37B98B), RoundedCornerShape(12.dp))
             .padding(horizontal = 20.dp, vertical = 16.dp),
         shape = RoundedCornerShape(12.dp),
         colors = ButtonDefaults.buttonColors().copy(
