@@ -14,6 +14,30 @@ val HostGrotesk = FontFamily(
     Font(R.font.host_grotesk_regular, weight = FontWeight.Normal),
 )
 
+val HostGroteskSemiBold = TextStyle(
+    fontFamily = HostGrotesk,
+    fontWeight = FontWeight.SemiBold,
+    fontSize = 28.sp,
+    lineHeight = 32.sp,
+    letterSpacing = 0.sp
+)
+
+val HostGroteskNormalRegular = TextStyle(
+    fontFamily = HostGrotesk,
+    fontWeight = FontWeight.Normal,
+    fontSize = 17.sp,
+    lineHeight = 20.sp,
+    letterSpacing = 0.sp
+)
+
+val HostGroteskMedium = TextStyle(
+    fontFamily = HostGrotesk,
+    fontWeight = FontWeight.Medium,
+    fontSize = 17.sp,
+    lineHeight = 20.sp,
+    letterSpacing = 0.sp
+)
+
 // Set of Material typography styles to start with
 val Typography = Typography(
     bodyLarge = TextStyle(

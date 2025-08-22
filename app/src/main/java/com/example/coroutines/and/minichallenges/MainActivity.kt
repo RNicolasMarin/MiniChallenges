@@ -12,8 +12,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.coroutines.and.minichallenges.august_2025.Surface
+import com.example.coroutines.and.minichallenges.august_2025.order_queue_outpost.OrderQueueOutpost
+import com.example.coroutines.and.minichallenges.august_2025.order_queue_outpost.OrderQueueOutpostViewModel
 import com.example.coroutines.and.minichallenges.august_2025.thermometer_trek.ThermometerTrek
 import com.example.coroutines.and.minichallenges.august_2025.thermometer_trek.ThermometerTrekRepository
 import com.example.coroutines.and.minichallenges.august_2025.thermometer_trek.ThermometerTrekViewModel
@@ -33,14 +35,13 @@ class MainActivity : ComponentActivity() {
                         contentAlignment = Alignment.Center,
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(Color(0xFFF4F6F6))
-                            .padding(24.dp)
+                            .background(Surface)
+                            .padding(26.dp)
                     ) {
-                        ThermometerTrek(
-                            viewModel = ThermometerTrekViewModel(ThermometerTrekRepository()),
+                        OrderQueueOutpost(
+                            viewModel = OrderQueueOutpostViewModel(),
                             modifier = Modifier
                                 .fillMaxWidth()
-
                         )
                     }
                     /*ThousandsSeparatorPicker(

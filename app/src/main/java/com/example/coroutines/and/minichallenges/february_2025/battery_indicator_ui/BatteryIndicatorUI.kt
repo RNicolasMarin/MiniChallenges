@@ -47,6 +47,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import com.example.coroutines.and.minichallenges.R
+import com.example.coroutines.and.minichallenges.august_2025.SurfaceHigher
 import com.example.coroutines.and.minichallenges.ui.theme.MiniChallengesTheme
 
 @Composable
@@ -248,14 +249,14 @@ fun BatteryIndicatorUI(
             val path = Path().apply {
 
                 drawRoundRect(
-                    color = White,
+                    color = SurfaceHigher,
                     size = Size(batteryBackgroundWidthPx, canvasHeightPx),
                     cornerRadius = withCornerRadius
                 )
 
                 drawRoundRect(
                     topLeft = Offset(canvasWidthPx - batteryEndWidthPx, canvasHeightPx * 0.5f - batteryEndHeightPx / 2),
-                    color = White,
+                    color = SurfaceHigher,
                     size = Size(batteryEndWidthPx, batteryEndHeightPx),
                     cornerRadius = withCornerRadius
                 )

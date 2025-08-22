@@ -1,6 +1,5 @@
 package com.example.coroutines.and.minichallenges.august_2025.thermometer_trek
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,27 +14,29 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.coroutines.and.minichallenges.R
+import com.example.coroutines.and.minichallenges.august_2025.Primary
+import com.example.coroutines.and.minichallenges.august_2025.SurfaceHigher
+import com.example.coroutines.and.minichallenges.august_2025.TextDisabled
+import com.example.coroutines.and.minichallenges.august_2025.TextPrimary
+import com.example.coroutines.and.minichallenges.august_2025.TextSecondary
+import com.example.coroutines.and.minichallenges.august_2025.ThermometerTrekButton
 import com.example.coroutines.and.minichallenges.august_2025.thermometer_trek.Status.CAN_RESET
 import com.example.coroutines.and.minichallenges.august_2025.thermometer_trek.Status.CAN_START
 import com.example.coroutines.and.minichallenges.august_2025.thermometer_trek.Status.TRACKING
-import com.example.coroutines.and.minichallenges.ui.theme.HostGrotesk
+import com.example.coroutines.and.minichallenges.ui.theme.HostGroteskMedium
+import com.example.coroutines.and.minichallenges.ui.theme.HostGroteskNormalRegular
+import com.example.coroutines.and.minichallenges.ui.theme.HostGroteskSemiBold
 import com.example.coroutines.and.minichallenges.ui.theme.MiniChallengesTheme
 import kotlin.math.round
 
@@ -69,19 +70,13 @@ fun ThermometerTrekStart(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
-            .background(Color(0xFFFFFFFF), RoundedCornerShape(16.dp))
+            .background(SurfaceHigher, RoundedCornerShape(16.dp))
             .padding(24.dp)
     ) {
         Text(
             text = stringResource(R.string.thermometer_trek_start_title),
-            style = TextStyle(
-                fontFamily = HostGrotesk,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 28.sp,
-                lineHeight = 32.sp,
-                letterSpacing = 0.sp
-            ),
-            color = Color(0xFF2E3642),
+            style = HostGroteskSemiBold,
+            color = TextPrimary,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
         )
@@ -90,14 +85,8 @@ fun ThermometerTrekStart(
 
         Text(
             text = stringResource(R.string.thermometer_trek_start_description),
-            style = TextStyle(
-                fontFamily = HostGrotesk,
-                fontWeight = FontWeight.Normal,
-                fontSize = 17.sp,
-                lineHeight = 20.sp,
-                letterSpacing = 0.sp
-            ),
-            color = Color(0xFF66707F),
+            style = HostGroteskNormalRegular,
+            color = TextSecondary,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
         )
@@ -120,19 +109,13 @@ fun ThermometerTrekTracking(
     Column(
         horizontalAlignment = Alignment.Start,
         modifier = modifier
-            .background(Color(0xFFFFFFFF), RoundedCornerShape(16.dp))
+            .background(SurfaceHigher, RoundedCornerShape(16.dp))
             .padding(24.dp)
     ) {
         Text(
             text = stringResource(R.string.thermometer_trek_start_title),
-            style = TextStyle(
-                fontFamily = HostGrotesk,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 28.sp,
-                lineHeight = 32.sp,
-                letterSpacing = 0.sp
-            ),
-            color = Color(0xFF2E3642)
+            style = HostGroteskSemiBold,
+            color = TextPrimary
         )
 
         Spacer(modifier = Modifier.height(4.dp))
@@ -142,7 +125,7 @@ fun ThermometerTrekTracking(
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.check_circle),
-                tint = if (state.status == TRACKING) Color(0xFFB4BDCA) else Color(0xFF37B98B),
+                tint = if (state.status == TRACKING) TextDisabled else Primary,
                 contentDescription = "Check",
                 modifier = Modifier
                     .size(16.dp)
@@ -154,14 +137,8 @@ fun ThermometerTrekTracking(
 
             Text(
                 text = amount,
-                style = TextStyle(
-                    fontFamily = HostGrotesk,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 17.sp,
-                    lineHeight = 20.sp,
-                    letterSpacing = 0.sp
-                ),
-                color = Color(0xFF66707F)
+                style = HostGroteskMedium,
+                color = TextSecondary
             )
         }
 
@@ -210,7 +187,7 @@ fun TemperatureItem(
     ) {
         Icon(
             painter = painterResource(id = R.drawable.thermometer),
-            tint = if (item == null) Color(0xFFB4BDCA) else Color(0xFF37B98B),
+            tint = if (item == null) TextDisabled else Primary,
             contentDescription = "Thermometer",
             modifier = Modifier
                 .size(16.dp)
@@ -226,49 +203,8 @@ fun TemperatureItem(
 
         Text(
             text = temperature,
-            style = TextStyle(
-                fontFamily = HostGrotesk,
-                fontWeight = FontWeight.Medium,
-                fontSize = 17.sp,
-                lineHeight = 20.sp,
-                letterSpacing = 0.sp
-            ),
-            color = Color(0xFF2E3642)
-        )
-    }
-}
-
-@Composable
-fun ThermometerTrekButton(
-    @StringRes textRes: Int,
-    modifier: Modifier = Modifier,
-    enable: Boolean = true,
-    onClick: () -> Unit
-) {
-    Button(
-        modifier = modifier
-            .padding(horizontal = 20.dp, vertical = 16.dp),
-        shape = RoundedCornerShape(12.dp),
-        colors = ButtonDefaults.buttonColors().copy(
-            containerColor = Color(0xFF37B98B),
-            disabledContainerColor = Color(0xFFF4F6F6),
-            contentColor = Color(0xFFFFFFFF),
-            disabledContentColor = Color(0xFFB4BDCA),
-        ),
-        enabled = enable,
-        onClick = onClick
-    ) {
-        Text(
-            text = stringResource(textRes),
-            style = TextStyle(
-                fontFamily = HostGrotesk,
-                fontWeight = FontWeight.Medium,
-                fontSize = 17.sp,
-                lineHeight = 20.sp,
-                letterSpacing = 0.sp
-            ),
-            color = if (enable) Color(0xFFFFFFFF) else Color(0xFFB4BDCA),
-            textAlign = TextAlign.Center
+            style = HostGroteskMedium,
+            color = TextPrimary
         )
     }
 }

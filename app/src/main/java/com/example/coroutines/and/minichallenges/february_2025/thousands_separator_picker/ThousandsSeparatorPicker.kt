@@ -32,6 +32,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.coroutines.and.minichallenges.august_2025.SurfaceHigher
 import com.example.coroutines.and.minichallenges.ui.theme.MiniChallengesTheme
 
 @Composable
@@ -80,7 +81,7 @@ fun ThousandsSeparatorPicker(
                     .offset(x = animatedOffset)
                     .size(textWidthDp, textHeightDp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFFFFFFFF))
+                    .background(SurfaceHigher)
             )
             Row(
                 modifier = Modifier

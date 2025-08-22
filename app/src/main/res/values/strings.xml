@@ -9,4 +9,9 @@
     <string name="thermometer_trek_tracking_button">Tracking…</string>
 
     <string name="thermometer_trek_reset_button">Reset</string>
+
+
+    <string name="order_queue_outpost_start_title">Order Queue Outpost</string>
+    <string name="order_queue_outpost_start_description">Press Play to start processing orders.</string>
+    <string name="order_queue_outpost_start_button">Start</string>
 </resources>
