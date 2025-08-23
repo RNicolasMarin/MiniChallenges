@@ -4,7 +4,7 @@ import com.example.coroutines.and.minichallenges.august_2025.order_queue_outpost
 
 data class OrderQueueOutpostState(
     val status: Status = CAN_START,
-    val orderId: List<Int> = emptyList()
+    val orderAmount: Int = 0
 )
 
 enum class Status {

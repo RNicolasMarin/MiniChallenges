@@ -1,7 +1,9 @@
 package com.example.coroutines.and.minichallenges.august_2025.order_queue_outpost
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -14,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.coroutines.and.minichallenges.R
 import com.example.coroutines.and.minichallenges.august_2025.OrderQueueOutpostButton
 import com.example.coroutines.and.minichallenges.august_2025.SurfaceHigher
@@ -22,6 +25,7 @@ import com.example.coroutines.and.minichallenges.august_2025.TextSecondary
 import com.example.coroutines.and.minichallenges.august_2025.order_queue_outpost.Status.CAN_START
 import com.example.coroutines.and.minichallenges.august_2025.order_queue_outpost.Status.GOING
 import com.example.coroutines.and.minichallenges.august_2025.order_queue_outpost.Status.PAUSED
+import com.example.coroutines.and.minichallenges.ui.theme.HostGroteskMedium
 import com.example.coroutines.and.minichallenges.ui.theme.HostGroteskNormalRegular
 import com.example.coroutines.and.minichallenges.ui.theme.HostGroteskSemiBold
 
@@ -38,8 +42,13 @@ fun OrderQueueOutpost(
                 viewModel.startProducer()
             }
         )
-        PAUSED -> {}
-        GOING -> {}
+        PAUSED, GOING -> OrderQueueOutpostGoingOrPaused(
+            state = viewModel.state,
+            modifier = modifier,
+            onStartOrReset = {
+                viewModel.stopOrRestartConsuming()
+            }
+        )
     }
 }
 
@@ -74,6 +83,59 @@ fun OrderQueueOutpostStart(
         )
 
         Spacer(modifier = Modifier.height(32.dp))
+
+        OrderQueueOutpostButton(
+            isGoing = state.status == GOING,
+            onClick = onStartOrReset
+        )
+    }
+}
+
+@Composable
+fun OrderQueueOutpostGoingOrPaused(
+    state: OrderQueueOutpostState,
+    modifier: Modifier = Modifier,
+    onStartOrReset: () -> Unit
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+            .background(SurfaceHigher, RoundedCornerShape(16.dp))
+            .padding(24.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.order_queue_outpost_start_title),
+            style = HostGroteskSemiBold,
+            color = TextPrimary,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(25.dp))
+
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = stringResource(R.string.order_queue_outpost_paused_going_queue, state.orderAmount),
+                style = HostGroteskMedium.copy(
+                    fontSize = 16.sp,
+                    lineHeight = 18.sp
+                ),
+                color = TextPrimary
+            )
+
+            val percentage = state.orderAmount * 100 / 25
+            Text(
+                text = stringResource(R.string.order_queue_outpost_paused_going_percentage, percentage),
+                style = HostGroteskNormalRegular.copy(
+                    fontSize = 16.sp,
+                    lineHeight = 18.sp
+                ),
+                color = TextSecondary
+            )
+        }
 
         OrderQueueOutpostButton(
             isGoing = state.status == GOING,

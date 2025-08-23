@@ -16,4 +16,7 @@
     <string name="order_queue_outpost_start_button">Start</string>
 
     <string name="order_queue_outpost_going_button">Pause</string>
+
+    <string name="order_queue_outpost_paused_going_queue">Queue: %1$d/25</string>
+    <string name="order_queue_outpost_paused_going_percentage">%1$d%%</string>
 </resources>

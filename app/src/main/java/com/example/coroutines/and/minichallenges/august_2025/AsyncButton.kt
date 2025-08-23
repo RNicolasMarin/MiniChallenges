@@ -44,10 +44,11 @@ fun AsyncButton(
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
+            val contentColor = if (enable) colors.contentColor else colors.disabledContentColor
             painter?.let {
                 Icon(
                     painter = painter,
-                    tint = colors.contentColor,
+                    tint = contentColor,
                     contentDescription = "Icon",
                     modifier = Modifier
                         .size(16.dp)
@@ -58,7 +59,7 @@ fun AsyncButton(
             Text(
                 text = stringResource(textRes),
                 style = HostGroteskMedium,
-                color = if (enable) SurfaceHigher else TextDisabled,
+                color = contentColor,
                 textAlign = TextAlign.Center
             )
         }
