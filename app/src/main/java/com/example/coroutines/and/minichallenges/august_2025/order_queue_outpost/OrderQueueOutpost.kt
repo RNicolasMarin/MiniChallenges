@@ -1,5 +1,11 @@
 package com.example.coroutines.and.minichallenges.august_2025.order_queue_outpost
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -12,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -21,6 +28,7 @@ import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.coroutines.and.minichallenges.R
 import com.example.coroutines.and.minichallenges.august_2025.Error
+import com.example.coroutines.and.minichallenges.august_2025.ErrorClear
 import com.example.coroutines.and.minichallenges.august_2025.OrderQueueOutpostButton
 import com.example.coroutines.and.minichallenges.august_2025.Overload
 import com.example.coroutines.and.minichallenges.august_2025.Primary
@@ -116,56 +125,104 @@ fun OrderQueueOutpostGoingOrPaused(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .background(SurfaceHigher, RoundedCornerShape(16.dp))
-            .padding(24.dp)
+            .padding(vertical = 24.dp, horizontal = 20.dp)
     ) {
-        Text(
-            text = stringResource(R.string.order_queue_outpost_start_title),
-            style = HostGroteskSemiBold,
-            color = TextPrimary,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(25.dp))
-
         val percentage = state.orderAmount * 100 / 25
 
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth()
-        ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 4.dp)
+        ){
             Text(
-                text = stringResource(R.string.order_queue_outpost_paused_going_queue, state.orderAmount),
-                style = HostGroteskMedium.copy(
-                    fontSize = 16.sp,
-                    lineHeight = 18.sp
-                ),
-                color = TextPrimary
+                text = stringResource(R.string.order_queue_outpost_start_title),
+                style = HostGroteskSemiBold,
+                color = TextPrimary,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
             )
 
-            Text(
-                text = stringResource(R.string.order_queue_outpost_paused_going_percentage, percentage),
-                style = HostGroteskNormalRegular.copy(
-                    fontSize = 16.sp,
-                    lineHeight = 18.sp
-                ),
-                color = TextSecondary
-            )
+            Spacer(modifier = Modifier.height(25.dp))
+
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = stringResource(R.string.order_queue_outpost_paused_going_queue, state.orderAmount),
+                    style = HostGroteskMedium.copy(
+                        fontSize = 16.sp,
+                        lineHeight = 18.sp
+                    ),
+                    color = TextPrimary
+                )
+
+                Text(
+                    text = stringResource(R.string.order_queue_outpost_paused_going_percentage, percentage),
+                    style = HostGroteskNormalRegular.copy(
+                        fontSize = 16.sp,
+                        lineHeight = 18.sp
+                    ),
+                    color = if (percentage > 100) Overload else TextSecondary
+                )
+            }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
 
-        Canvas(modifier = Modifier.height(12.dp).fillMaxWidth()) {
+        Spacer(modifier = Modifier.height(4.dp))
+
+        val density = LocalDensity.current
+        val infiniteTransition = rememberInfiniteTransition(label = "borderValue")
+
+        val animatedValue by infiniteTransition.animateFloat(
+            initialValue = with(density) { 0.dp.toPx() },
+            targetValue = with(density) { 2.dp.toPx() },
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 1000, easing = LinearEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "borderValue"
+        )
+
+        Canvas(modifier = Modifier.height(20.dp).fillMaxWidth()) {
             val canvasWidthPx = size.width
             val canvasHeightPx = size.height
+
+            val withCornerRadius = CornerRadius(8.dp.toPx(), 8.dp.toPx())
+            val withoutCornerRadius = CornerRadius(0.dp.toPx(), 0.dp.toPx())
+
+            if (percentage > 100) {
+                val path = Path().apply {
+                    addRoundRect(
+                        RoundRect(
+                            rect = Rect(
+                                offset = Offset(animatedValue, animatedValue),
+                                size = Size(canvasWidthPx - animatedValue * 2, canvasHeightPx - animatedValue * 2)
+                            ),
+                            topLeft = withCornerRadius,
+                            topRight = withCornerRadius,
+                            bottomRight = withCornerRadius,
+                            bottomLeft = withCornerRadius
+                        )
+                    )
+                }
+
+                drawPath(
+                    path = path,
+                    color = ErrorClear
+                )
+            }
+
+            val chartWidthPx = canvasWidthPx - 8.dp.toPx()
+
 
             val spaceWidthPx = 1.dp.toPx()
 
             val amountSpaces = if (percentage > 100) 3 else 2
             val totalPercentage = if (percentage > 100) percentage else 100
 
-            val onePercentageWidthPx = (canvasWidthPx - amountSpaces * spaceWidthPx) / totalPercentage
-            val spacePair: Pair<Float, Color?> = Pair(spaceWidthPx, null)
+            val onePercentageWidthPx = (chartWidthPx - amountSpaces * spaceWidthPx) / totalPercentage
+            val spacePair = Pair(spaceWidthPx, null)
 
             val generalFilledColor = when {
                 percentage <= 33 -> Primary
@@ -241,10 +298,9 @@ fun OrderQueueOutpostGoingOrPaused(
                 segmentFourFilled
             )
 
-            val topY = 0f
-            var leftX = 0f
-            val withCornerRadius = CornerRadius(8.dp.toPx(), 8.dp.toPx())
-            val withoutCornerRadius = CornerRadius(0.dp.toPx(), 0.dp.toPx())
+            val topY = 4.dp.toPx()
+            var leftX = 4.dp.toPx()
+
 
             eachSectionWidthPx2.forEachIndexed { index, item ->
                 val leftCorners = if (index == 0) withCornerRadius else withoutCornerRadius
@@ -257,7 +313,7 @@ fun OrderQueueOutpostGoingOrPaused(
                             RoundRect(
                                 rect = Rect(
                                     offset = Offset(leftX, topY),
-                                    size = Size(item.first, canvasHeightPx)
+                                    size = Size(item.first, canvasHeightPx - 8.dp.toPx())
                                 ),
                                 topLeft = leftCorners,
                                 topRight = rightCorners,
@@ -293,7 +349,7 @@ private fun ThermometerTrekPreview() {
         OrderQueueOutpostGoingOrPaused(
             state = OrderQueueOutpostState(
                 status = GOING,
-                orderAmount = 1
+                orderAmount = 26
             ),
             onStartOrReset = {},
             modifier = Modifier
