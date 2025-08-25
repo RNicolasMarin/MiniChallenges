@@ -47,9 +47,11 @@ class OrderQueueOutpostViewModel: ViewModel() {
             for (order in orderChanel) {
                 delay(Random.nextLong(100, 250))
                 if (state.status == PAUSED) break
-                state = state.copy(
-                    orderAmount = state.orderAmount - 1
-                )
+                if (state.orderAmount > 1) {
+                    state = state.copy(
+                        orderAmount = state.orderAmount - 1
+                    )
+                }
                 println("Order removed: $order, ${state.orderAmount}")
             }
         }
