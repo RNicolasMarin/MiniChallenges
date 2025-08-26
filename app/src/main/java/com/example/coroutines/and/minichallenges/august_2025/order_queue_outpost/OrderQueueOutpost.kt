@@ -30,6 +30,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -42,6 +44,7 @@ import com.example.coroutines.and.minichallenges.august_2025.Overload
 import com.example.coroutines.and.minichallenges.august_2025.Primary
 import com.example.coroutines.and.minichallenges.august_2025.SurfaceHigher
 import com.example.coroutines.and.minichallenges.august_2025.SurfaceHighest
+import com.example.coroutines.and.minichallenges.august_2025.TextDisabled
 import com.example.coroutines.and.minichallenges.august_2025.TextPrimary
 import com.example.coroutines.and.minichallenges.august_2025.TextSecondary
 import com.example.coroutines.and.minichallenges.august_2025.Warning
@@ -168,7 +171,6 @@ fun OrderQueueOutpostGoingOrPaused(
             }
         }
 
-
         Spacer(modifier = Modifier.height(4.dp))
 
         val density = LocalDensity.current
@@ -184,10 +186,10 @@ fun OrderQueueOutpostGoingOrPaused(
             label = "borderValue"
         )
 
-        Canvas(modifier = Modifier.height(20.dp).fillMaxWidth()) {
-            val canvasWidthPx = size.width
-            val canvasHeightPx = size.height
+        val measurer = rememberTextMeasurer()
 
+        Canvas(modifier = Modifier.fillMaxWidth()) {
+            val canvasWidthPx = size.width
             val withCornerRadius = CornerRadius(8.dp.toPx(), 8.dp.toPx())
             val withoutCornerRadius = CornerRadius(0.dp.toPx(), 0.dp.toPx())
 
@@ -197,7 +199,7 @@ fun OrderQueueOutpostGoingOrPaused(
                         RoundRect(
                             rect = Rect(
                                 offset = Offset(animatedValue, animatedValue),
-                                size = Size(canvasWidthPx - animatedValue * 2, canvasHeightPx - animatedValue * 2)
+                                size = Size(canvasWidthPx - animatedValue * 2, 20.dp.toPx() - animatedValue * 2)
                             ),
                             topLeft = withCornerRadius,
                             topRight = withCornerRadius,
@@ -214,7 +216,6 @@ fun OrderQueueOutpostGoingOrPaused(
             }
 
             val chartWidthPx = canvasWidthPx - 8.dp.toPx()
-
 
             val spaceWidthPx = 1.dp.toPx()
 
@@ -301,6 +302,7 @@ fun OrderQueueOutpostGoingOrPaused(
             val topY = 4.dp.toPx()
             var leftX = 4.dp.toPx()
 
+            var textX = 0f
 
             eachSectionWidthPx2.forEachIndexed { index, item ->
                 val leftCorners = if (index == 0) withCornerRadius else withoutCornerRadius
@@ -313,7 +315,7 @@ fun OrderQueueOutpostGoingOrPaused(
                             RoundRect(
                                 rect = Rect(
                                     offset = Offset(leftX, topY),
-                                    size = Size(item.first, canvasHeightPx - 8.dp.toPx())
+                                    size = Size(item.first, 12.dp.toPx())
                                 ),
                                 topLeft = leftCorners,
                                 topRight = rightCorners,
@@ -329,11 +331,37 @@ fun OrderQueueOutpostGoingOrPaused(
                     )
                 }
 
+                if (thirdSpace != null && index == eachSectionWidthPx2.size - 2) {
+                    textX = leftX + item.first / 2
+                }
+
                 leftX = leftX + item.first
             }
+
+
+            val newTextStyle = HostGroteskMedium.copy(
+                fontSize = 13.sp,
+                lineHeight = 16.sp,
+                color = TextDisabled,
+                textAlign = TextAlign.Center
+            )
+
+            val valueResult = measurer.measure(
+                text = if (thirdSpace != null) "100%" else "",
+                style = newTextStyle,
+                maxLines = 1
+            )
+
+            val textY = 22.dp.toPx()
+            textX = textX - valueResult.size.width / 2
+
+            drawText(
+                topLeft = Offset(textX, textY),
+                textLayoutResult = valueResult,
+            )
         }
 
-        Spacer(modifier = Modifier.height(44.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
         OrderQueueOutpostButton(
             isGoing = state.status == GOING,
