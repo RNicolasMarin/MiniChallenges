@@ -14,11 +14,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.coroutines.and.minichallenges.august_2025.Surface
-import com.example.coroutines.and.minichallenges.august_2025.order_queue_outpost.OrderQueueOutpost
-import com.example.coroutines.and.minichallenges.august_2025.order_queue_outpost.OrderQueueOutpostViewModel
-import com.example.coroutines.and.minichallenges.august_2025.thermometer_trek.ThermometerTrek
-import com.example.coroutines.and.minichallenges.august_2025.thermometer_trek.ThermometerTrekRepository
-import com.example.coroutines.and.minichallenges.august_2025.thermometer_trek.ThermometerTrekViewModel
+import com.example.coroutines.and.minichallenges.august_2025.parce_pigeon_race.ParcePigeonRace
+import com.example.coroutines.and.minichallenges.august_2025.parce_pigeon_race.ParcePigeonRaceViewModel
 import com.example.coroutines.and.minichallenges.ui.theme.MiniChallengesTheme
 
 class MainActivity : ComponentActivity() {
@@ -38,8 +35,8 @@ class MainActivity : ComponentActivity() {
                             .background(Surface)
                             .padding(26.dp)
                     ) {
-                        OrderQueueOutpost(
-                            viewModel = OrderQueueOutpostViewModel(),
+                        ParcePigeonRace(
+                            viewModel = ParcePigeonRaceViewModel(),
                             modifier = Modifier
                                 .fillMaxWidth()
                         )
