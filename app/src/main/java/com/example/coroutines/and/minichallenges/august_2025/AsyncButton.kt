@@ -15,7 +15,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -103,6 +102,28 @@ fun OrderQueueOutpostButton(
         ),
         enable = true,
         painter = painterResource(if (isGoing) R.drawable.ic_pause else R.drawable.ic_play),
+        onClick = onClick
+    )
+}
+
+@Composable
+fun ParcePigeonRaceButton(
+    @StringRes textRes: Int,
+    modifier: Modifier = Modifier,
+    enable: Boolean = true,
+    onClick: () -> Unit
+) {
+    AsyncButton(
+        textRes = textRes,
+        modifier = modifier,
+        colors = ButtonDefaults.buttonColors().copy(
+            containerColor = Primary,
+            disabledContainerColor = SurfaceHighest,
+            contentColor = SurfaceHigher,
+            disabledContentColor = TextDisabled,
+        ),
+        enable = enable,
+        painter = null,
         onClick = onClick
     )
 }

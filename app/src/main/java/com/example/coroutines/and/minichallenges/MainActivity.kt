@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.coroutines.and.minichallenges.august_2025.Surface
 import com.example.coroutines.and.minichallenges.august_2025.parce_pigeon_race.ParcePigeonRace
+import com.example.coroutines.and.minichallenges.august_2025.parce_pigeon_race.ParcePigeonRaceRepository
 import com.example.coroutines.and.minichallenges.august_2025.parce_pigeon_race.ParcePigeonRaceViewModel
 import com.example.coroutines.and.minichallenges.ui.theme.MiniChallengesTheme
 
@@ -36,7 +37,7 @@ class MainActivity : ComponentActivity() {
                             .padding(26.dp)
                     ) {
                         ParcePigeonRace(
-                            viewModel = ParcePigeonRaceViewModel(),
+                            viewModel = ParcePigeonRaceViewModel(ParcePigeonRaceRepository()),
                             modifier = Modifier
                                 .fillMaxWidth()
                         )

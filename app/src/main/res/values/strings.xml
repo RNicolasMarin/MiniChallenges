@@ -23,4 +23,11 @@
     <string name="parce_pigeon_race_can_run_title">Parcel Pigeon Race</string>
     <string name="parce_pigeon_race_can_run_description">Press Run Again to fetch images</string>
     <string name="parce_pigeon_race_can_run_button">Run Loading</string>
+
+    <string name="parce_pigeon_race_running_run_again_image">Image#%1$d</string>
+    <string name="parce_pigeon_race_running_run_again_fetching">Fetching…</string>
+    <string name="parce_pigeon_race_running_run_again_total_time">Total Time:</string>
+    <string name="parce_pigeon_race_running_run_again_no_time">…</string>
+    <string name="parce_pigeon_race_running_run_again_time">%1$ds</string>
+    <string name="parce_pigeon_race_running_run_again_button">Run Again</string>
 </resources>
