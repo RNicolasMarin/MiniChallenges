@@ -14,9 +14,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.coroutines.and.minichallenges.august_2025.Surface
-import com.example.coroutines.and.minichallenges.august_2025.parce_pigeon_race.ParcePigeonRace
-import com.example.coroutines.and.minichallenges.august_2025.parce_pigeon_race.ParcePigeonRaceRepository
-import com.example.coroutines.and.minichallenges.august_2025.parce_pigeon_race.ParcePigeonRaceViewModel
+import com.example.coroutines.and.minichallenges.august_2025.heartbeat_sentinel.HeartbeatSentinel
+import com.example.coroutines.and.minichallenges.august_2025.heartbeat_sentinel.HeartbeatSentinelViewModel
 import com.example.coroutines.and.minichallenges.ui.theme.MiniChallengesTheme
 
 class MainActivity : ComponentActivity() {
@@ -34,10 +33,10 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier
                             .fillMaxSize()
                             .background(Surface)
-                            .padding(26.dp)
+                            .padding(horizontal = 16.dp, vertical = 20.dp)
                     ) {
-                        ParcePigeonRace(
-                            viewModel = ParcePigeonRaceViewModel(ParcePigeonRaceRepository()),
+                        HeartbeatSentinel(
+                            viewModel = HeartbeatSentinelViewModel(),
                             modifier = Modifier
                                 .fillMaxWidth()
                         )

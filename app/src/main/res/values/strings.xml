@@ -30,4 +30,13 @@
     <string name="parce_pigeon_race_running_run_again_no_time">…</string>
     <string name="parce_pigeon_race_running_run_again_time">%1$ds</string>
     <string name="parce_pigeon_race_running_run_again_button">Run Again</string>
+
+    <string name="heartbeat_sentinel_title">Heartbeat Sentinel</string>
+    <string name="heartbeat_sentinel_operational">All Stations Operational</string>
+    <string name="heartbeat_sentinel_offline">%1$s offline %2$s s</string>
+    <string name="heartbeat_sentinel_station_a">Station A</string>
+    <string name="heartbeat_sentinel_station_b">Station B</string>
+    <string name="heartbeat_sentinel_station_c">Station C</string>
+
+
 </resources>
