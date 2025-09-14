@@ -1,129 +1,172 @@
 package com.example.coroutines.and.minichallenges.august_2025.heartbeat_sentinel
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.coroutines.and.minichallenges.august_2025.heartbeat_sentinel.StationStatus.*
-import kotlinx.coroutines.Dispatchers
+import com.example.coroutines.and.minichallenges.august_2025.heartbeat_sentinel.OnlineOrOffline.*
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class HeartbeatSentinelViewModel: ViewModel() {
+class HeartbeatSentinelViewModel(
+    private val repository: HeartbeatSentinelRepository = HeartbeatSentinelRepository()
+): ViewModel() {
 
-    var state by mutableStateOf(HeartbeatSentinelState())
-        private set
+    private val onlineOrOfflineA = MutableStateFlow(ONLINE)
+    private val onlineOrOfflineB = MutableStateFlow(ONLINE)
+    private val onlineOrOfflineC = MutableStateFlow(ONLINE)
 
-    private val heartbeatDuration = 50L
+    private val stationA = MutableStateFlow(StateStation(Station.A))
+    private val stationB = MutableStateFlow(StateStation(Station.B))
+    private val stationC = MutableStateFlow(StateStation(Station.C))
+
+    private val eventChannel = Channel<HeartbeatSentinelEvent>()
+    val events = eventChannel.receiveAsFlow()
+
+    val state: StateFlow<HeartbeatSentinelState> =
+        combine(stationA, stationB, stationC) { a, b, c ->
+            val offlineFirst = listOf(a, b, c)
+                .filter {
+                    it.onlineOrOffline == OFFLINE
+                }
+                .minByOrNull {
+                    it.lastOnline
+                }
+            HeartbeatSentinelState(
+                stationA = a,
+                stationB = b,
+                stationC = c,
+                offlineFirst = offlineFirst
+            )
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, HeartbeatSentinelState())
 
     init {
-        startStation(Station.A)
-        startStation(Station.B)
-        startStation(Station.C)
+        viewModelScope.launch {
+            val isOfflineA = onlineOrOfflineA
+                .map {
+                    Pair(Station.A, it == OFFLINE)
+                }
+            val isOfflineB = onlineOrOfflineB
+                .map {
+                    Pair(Station.B, it == OFFLINE)
+                }
+            val isOfflineC = onlineOrOfflineC
+                .map {
+                    Pair(Station.C, it == OFFLINE)
+                }
+                .distinctUntilChanged()
+
+            merge(isOfflineA.drop(1), isOfflineB.drop(1), isOfflineC.drop(1))
+                .distinctUntilChanged()
+                .collectLatest {
+                    eventChannel.send(
+                        HeartbeatSentinelEvent.ShowSnackBar(
+                            it.first,
+                            !it.second
+                        )
+                    )
+            }
+        }
 
         viewModelScope.launch {
-            while (true) {
-                delay(500)
-                checkOffline(Station.A)
-                checkOffline(Station.B)
-                checkOffline(Station.C)
-            }
+            onlineOrOfflineA
+                .map {//is ONLINE or PARTIALLY_ONLINE
+                    it == ONLINE || it == PARTIALLY_ONLINE
+                }
+                .distinctUntilChanged()
+                .collectLatest { isOnlineOrPartiallyOnline ->
+                    if (isOnlineOrPartiallyOnline) {
+                        repository.emitStatus(
+                            stationA.value.type,
+                        ).collectLatest {
+                            val lastOnline = if (stationA.value.onlineOrOffline == ONLINE) System.currentTimeMillis() else stationA.value.lastOnline
+                            val newOnlineOrOffline = if (System.currentTimeMillis() - lastOnline < 2000) stationA.value.onlineOrOffline else OFFLINE
+                            stationA.value = stationA.value.copy(
+                                showing = it,
+                                lastOnline = lastOnline,
+                                onlineOrOffline = newOnlineOrOffline
+                            )
+                            onlineOrOfflineA.value = newOnlineOrOffline
+                        }
+                    }
+                }
+        }
+
+        viewModelScope.launch {
+            onlineOrOfflineB
+                .map {//is ONLINE or PARTIALLY_ONLINE
+                    it == ONLINE || it == PARTIALLY_ONLINE
+                }
+                .distinctUntilChanged()
+                .collectLatest { isOnlineOrPartiallyOnline ->
+                    if (isOnlineOrPartiallyOnline) {
+                        repository.emitStatus(
+                            stationB.value.type,
+                        ).collectLatest {
+                            val lastOnline = if (stationB.value.onlineOrOffline == ONLINE) System.currentTimeMillis() else stationB.value.lastOnline
+                            val newOnlineOrOffline = if (System.currentTimeMillis() - lastOnline < 2000) stationB.value.onlineOrOffline else OFFLINE
+                            stationB.value = stationB.value.copy(
+                                showing = it,
+                                lastOnline = lastOnline,
+                                onlineOrOffline = newOnlineOrOffline
+                            )
+                            onlineOrOfflineB.value = newOnlineOrOffline
+                        }
+                    }
+                }
+        }
+
+        viewModelScope.launch {
+            onlineOrOfflineC
+                .map {//is ONLINE or PARTIALLY_ONLINE
+                    it == ONLINE || it == PARTIALLY_ONLINE
+                }
+                .distinctUntilChanged()
+                .collectLatest { isOnlineOrPartiallyOnline ->
+                    if (isOnlineOrPartiallyOnline) {
+                        repository.emitStatus(
+                            stationC.value.type,
+                        ).collectLatest {
+                            val lastOnline = if (onlineOrOfflineC.value == ONLINE) System.currentTimeMillis() else stationC.value.lastOnline
+                            val newOnlineOrOffline = if (System.currentTimeMillis() - lastOnline < 2000) onlineOrOfflineC.value else OFFLINE
+                            stationC.value = stationC.value.copy(
+                                showing = it,
+                                lastOnline = lastOnline,
+                                onlineOrOffline = newOnlineOrOffline
+                            )
+                            onlineOrOfflineC.value = newOnlineOrOffline
+                        }
+                    }
+                }
         }
 
         viewModelScope.launch {
             delay(4000)
-            updateStation(Station.C, Showing(false))
+
+            onlineOrOfflineC.value = PARTIALLY_ONLINE
+
             delay(4000)
-            updateStation(Station.C, Showing(true))
+
+            onlineOrOfflineC.value = ONLINE
+
+            delay(3000)
+
+            onlineOrOfflineC.value = PARTIALLY_ONLINE
+
+            delay(8000)
+
+            onlineOrOfflineC.value = ONLINE
         }
     }
 
-    private fun checkOffline(station: Station) {
-        when (station) {
-            Station.A -> {
-                if (state.stationA.status != Offline && System.currentTimeMillis() - state.stationA.lastOnLine < 2000) return
-                state = state.copy(
-                    stationA = state.stationA.copy(
-                        status = Offline,
-                    )
-                )
-            }
-            Station.B -> {
-                if (state.stationB.status != Offline && System.currentTimeMillis() - state.stationB.lastOnLine < 2000) return
-                state = state.copy(
-                    stationB = state.stationB.copy(
-                        status = Offline,
-                    )
-                )
-            }
-            Station.C -> {
-                if (state.stationC.status != Offline && System.currentTimeMillis() - state.stationC.lastOnLine < 2000) return
-                //Log.d("TAGN", "checkOffline OFFLINE")
-                state = state.copy(
-                    stationC = state.stationC.copy(
-                        status = Offline,
-                    )
-                )
-            }
-        }
-    }
-
-    private fun isOnline(station: Station): Boolean {
-        return when (station) {
-            Station.A -> state.stationA.status.isOnline
-            Station.B -> state.stationB.status.isOnline
-            Station.C -> state.stationC.status.isOnline
-        }
-    }
-
-    private fun startStation(station: Station) {
-        viewModelScope.launch(Dispatchers.Default) {
-            while (true) {
-                updateStation(station, NotShowing(isOnline(station)), true)
-
-                delay(heartbeatDuration)
-
-                updateStation(station, Showing(isOnline(station)), true)
-
-                delay(station.timeElapsed - heartbeatDuration)
-            }
-        }
-    }
-
-    private fun updateStation(
-        station: Station,
-        status: StationStatus,
-        validateNotOffline: Boolean = false
-    ) {
-        when (station) {
-            Station.A -> {
-                if (validateNotOffline && state.stationA.status == Offline) return
-                state = state.copy(
-                    stationA = state.stationA.copy(
-                        status = status,
-                        lastOnLine = if (status.isOnline) System.currentTimeMillis() else state.stationA.lastOnLine
-                    )
-                )
-            }
-            Station.B -> {
-                if (validateNotOffline && state.stationB.status == Offline) return
-                state = state.copy(
-                    stationB = state.stationB.copy(
-                        status = status,
-                        lastOnLine = if (status.isOnline) System.currentTimeMillis() else state.stationB.lastOnLine
-                    )
-                )
-            }
-            Station.C -> {
-                if (validateNotOffline && state.stationC.status == Offline) return
-                state = state.copy(
-                    stationC = state.stationC.copy(
-                        status = status,
-                        lastOnLine = if (status.isOnline) System.currentTimeMillis() else state.stationC.lastOnLine
-                    )
-                )
-            }
-        }
-    }
 }

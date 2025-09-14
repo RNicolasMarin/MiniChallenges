@@ -38,5 +38,8 @@
     <string name="heartbeat_sentinel_station_b">Station B</string>
     <string name="heartbeat_sentinel_station_c">Station C</string>
 
+    <string name="heartbeat_sentinel_is_offline">is offline</string>
+    <string name="heartbeat_sentinel_is_online">is online</string>
+
 
 </resources>
