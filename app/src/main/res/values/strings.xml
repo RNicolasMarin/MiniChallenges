@@ -41,5 +41,9 @@
     <string name="heartbeat_sentinel_is_offline">is offline</string>
     <string name="heartbeat_sentinel_is_online">is online</string>
 
-
+    <string name="live_ticker_aggregator_title">Live-Ticker</string>
+    <string name="live_ticker_aggregator_rate">Tick Rate: %1$ds/s</string>
+    <string name="live_ticker_aggregator_pause">Pause</string>
+    <string name="live_ticker_aggregator_resume">Resume</string>
+    <string name="live_ticker_aggregator_break">Break XETRA</string>
 </resources>

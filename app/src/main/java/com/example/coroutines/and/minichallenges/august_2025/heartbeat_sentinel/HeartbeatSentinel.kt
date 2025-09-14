@@ -106,8 +106,8 @@ fun HeartbeatSentinel(
 fun HeartbeatSentinel(
     snackBarHostState: SnackbarHostState,
     state: HeartbeatSentinelState,
-    modifier: Modifier = Modifier)
-{
+    modifier: Modifier = Modifier
+) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier.fillMaxSize()

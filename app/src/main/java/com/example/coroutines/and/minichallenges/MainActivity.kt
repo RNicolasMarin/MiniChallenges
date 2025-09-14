@@ -33,7 +33,7 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier
                             .fillMaxSize()
                             .background(Surface)
-                            .padding(horizontal = 16.dp, vertical = 20.dp)
+                            .padding(top = 20.dp)
                     ) {
                         LiveTickerAggregator(
                             viewModel = LiveTickerAggregatorViewModel(),

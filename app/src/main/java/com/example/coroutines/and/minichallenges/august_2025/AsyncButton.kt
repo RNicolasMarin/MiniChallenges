@@ -29,12 +29,17 @@ fun AsyncButton(
     modifier: Modifier = Modifier,
     colors: ButtonColors,
     painter: Painter?,
+    applyPadding: Boolean = true,
     enable: Boolean = true,
     onClick: () -> Unit
 ) {
+    val mod = if (applyPadding) {
+        modifier.padding(horizontal = 20.dp, vertical = 16.dp)
+    } else {
+        modifier
+    }
     Button(
-        modifier = modifier
-            .padding(horizontal = 20.dp, vertical = 16.dp),
+        modifier = mod,
         shape = RoundedCornerShape(12.dp),
         colors = colors,
         enabled = enable,

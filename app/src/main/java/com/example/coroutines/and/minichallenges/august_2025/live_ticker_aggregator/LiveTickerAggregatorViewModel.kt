@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.coroutines.and.minichallenges.august_2025.live_ticker_aggregator.ChangeStatus.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -13,7 +14,9 @@ import kotlin.random.Random
 
 class LiveTickerAggregatorViewModel: ViewModel() {
 
-    private var updatesRate: Long = 250
+    private val _state = MutableStateFlow(LiveTickerAggregatorState())
+    val state: StateFlow<LiveTickerAggregatorState> = _state
+
     private var lastEmissionTime = 0L
 
     val initialFeeds = listOf(
@@ -29,7 +32,6 @@ class LiveTickerAggregatorViewModel: ViewModel() {
         Exchange("XETRA",  initialPrice = 140.40, updateDelayMs = 1000),
     )
     val feeds = MutableStateFlow(initialFeeds)
-    val uiFlow = MutableStateFlow(initialFeeds)
 
     init {
         initialFeeds.forEachIndexed { position, exc ->
@@ -58,10 +60,11 @@ class LiveTickerAggregatorViewModel: ViewModel() {
         viewModelScope.launch {
             while (isActive) {
                 val now = System.currentTimeMillis()
-                if (now - lastEmissionTime >= updatesRate) {
-                    uiFlow.update { current ->
-                        feeds.value
+                if (now - lastEmissionTime >= _state.value.updatesRate) {
+                    _state.update { current ->
+                        current.copy(exchanges = feeds.value.map { it.copy() })
                     }
+
                     lastEmissionTime = now
                 }
                 delay(50)
