@@ -4,5 +4,6 @@ data class Exchange(
     val name: String,
     val initialPrice: Double,
     val currentPrice: Double = initialPrice,
+    val lastTimeUpdated: Long = 0,
     val updateDelayMs: Long
 )

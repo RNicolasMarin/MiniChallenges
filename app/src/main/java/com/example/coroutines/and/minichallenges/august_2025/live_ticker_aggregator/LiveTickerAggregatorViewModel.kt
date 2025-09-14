@@ -47,7 +47,8 @@ class LiveTickerAggregatorViewModel: ViewModel() {
                     }
                     exchange = exchange.copy(
                         initialPrice = exchange.currentPrice,
-                        currentPrice = newPrice
+                        currentPrice = newPrice,
+                        lastTimeUpdated = System.currentTimeMillis()
                     )
 
                     feeds.update { current ->

@@ -38,6 +38,9 @@ import com.example.coroutines.and.minichallenges.august_2025.TextSecondary
 import com.example.coroutines.and.minichallenges.ui.theme.HostGroteskMedium
 import com.example.coroutines.and.minichallenges.ui.theme.HostGroteskNormalRegular
 import com.example.coroutines.and.minichallenges.ui.theme.HostGroteskSemiBold
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun LiveTickerAggregator(
@@ -179,8 +182,12 @@ fun LiveTickerAggregatorExchangeItem(
 
                 Spacer(modifier = Modifier.height(5.dp))
 
+                val date = Date(exchange.lastTimeUpdated)
+                val formatter = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+                val time = formatter.format(date)
+
                 Text(
-                    text = "12:04:13",
+                    text = time,
                     style = HostGroteskNormalRegular,
                     color = TextSecondary
                 )
