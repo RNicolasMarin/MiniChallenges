@@ -14,8 +14,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.coroutines.and.minichallenges.august_2025.Surface
-import com.example.coroutines.and.minichallenges.august_2025.heartbeat_sentinel.HeartbeatSentinel
-import com.example.coroutines.and.minichallenges.august_2025.heartbeat_sentinel.HeartbeatSentinelViewModel
+import com.example.coroutines.and.minichallenges.august_2025.live_ticker_aggregator.LiveTickerAggregator
+import com.example.coroutines.and.minichallenges.august_2025.live_ticker_aggregator.LiveTickerAggregatorViewModel
 import com.example.coroutines.and.minichallenges.ui.theme.MiniChallengesTheme
 
 class MainActivity : ComponentActivity() {
@@ -35,8 +35,8 @@ class MainActivity : ComponentActivity() {
                             .background(Surface)
                             .padding(horizontal = 16.dp, vertical = 20.dp)
                     ) {
-                        HeartbeatSentinel(
-                            viewModel = HeartbeatSentinelViewModel(),
+                        LiveTickerAggregator(
+                            viewModel = LiveTickerAggregatorViewModel(),
                             modifier = Modifier
                                 .fillMaxWidth()
                         )
