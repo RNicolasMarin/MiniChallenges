@@ -3,6 +3,7 @@ package com.example.coroutines.and.minichallenges
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,8 +36,9 @@ class MainActivity : ComponentActivity() {
                             .background(Surface)
                             .padding(top = 20.dp)
                     ) {
+                        val viewmodel by viewModels<LiveTickerAggregatorViewModel>()
                         LiveTickerAggregator(
-                            viewModel = LiveTickerAggregatorViewModel(),
+                            viewModel = viewmodel,
                             modifier = Modifier
                                 .fillMaxWidth()
                         )
