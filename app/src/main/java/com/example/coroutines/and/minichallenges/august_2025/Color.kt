@@ -3,6 +3,7 @@ package com.example.coroutines.and.minichallenges.august_2025
 import androidx.compose.ui.graphics.Color
 
 val Primary = Color(0xFF37B98B)
+val PrimaryClear = Color(0x3337B98B)
 val TextPrimary = Color(0xFF2E3642)
 val TextSecondary = Color(0xFF66707F)
 val TextDisabled = Color(0xFFB4BDCA)

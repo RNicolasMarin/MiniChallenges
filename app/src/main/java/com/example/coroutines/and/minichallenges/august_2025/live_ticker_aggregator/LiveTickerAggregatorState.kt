@@ -3,5 +3,6 @@ package com.example.coroutines.and.minichallenges.august_2025.live_ticker_aggreg
 data class LiveTickerAggregatorState(
     val exchanges: List<Exchange> = emptyList(),
     val isRunning: Boolean = true,
+    val isXETRABroken: Boolean = false,
     val updatesRate: Long = 250
 )

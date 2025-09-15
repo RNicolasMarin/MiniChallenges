@@ -1,5 +1,12 @@
 package com.example.coroutines.and.minichallenges.august_2025.live_ticker_aggregator
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,6 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -21,16 +29,24 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.coroutines.and.minichallenges.R
 import com.example.coroutines.and.minichallenges.august_2025.AsyncButton
+import com.example.coroutines.and.minichallenges.august_2025.Error
+import com.example.coroutines.and.minichallenges.august_2025.ErrorClear
 import com.example.coroutines.and.minichallenges.august_2025.Primary
+import com.example.coroutines.and.minichallenges.august_2025.PrimaryClear
 import com.example.coroutines.and.minichallenges.august_2025.Surface
 import com.example.coroutines.and.minichallenges.august_2025.SurfaceHigher
 import com.example.coroutines.and.minichallenges.august_2025.SurfaceHighest
@@ -38,6 +54,7 @@ import com.example.coroutines.and.minichallenges.august_2025.TextDisabled
 import com.example.coroutines.and.minichallenges.august_2025.TextPrimary
 import com.example.coroutines.and.minichallenges.august_2025.TextSecondary
 import com.example.coroutines.and.minichallenges.august_2025.live_ticker_aggregator.LiveTickerAggregatorAction.*
+import com.example.coroutines.and.minichallenges.august_2025.live_ticker_aggregator.LiveTickerAggregatorFeedStatus.*
 import com.example.coroutines.and.minichallenges.ui.theme.HostGroteskMedium
 import com.example.coroutines.and.minichallenges.ui.theme.HostGroteskNormalRegular
 import com.example.coroutines.and.minichallenges.ui.theme.HostGroteskSemiBold
@@ -124,7 +141,10 @@ fun LiveTickerAggregator(
         }
         Spacer(modifier = Modifier.height(12.dp))
 
+        val listState = rememberLazyListState()
+
         LazyColumn(
+            state = listState,
             verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier
                 .fillMaxWidth()
@@ -136,7 +156,8 @@ fun LiveTickerAggregator(
                 key = { exchange -> exchange.name }
             ) { exchange ->
                 LiveTickerAggregatorExchangeItem(
-                    exchange = exchange
+                    exchange = exchange,
+                    isRunning = state.isRunning
                 )
             }
         }
@@ -176,9 +197,11 @@ fun LiveTickerAggregator(
                     contentColor = if (xetraAvailable) SurfaceHigher else TextDisabled,
                 ),
                 applyPadding = false,
-                enable = true,
+                enable = !state.isXETRABroken,
                 painter = null,
-                onClick = {}
+                onClick = {
+                    onAction(OnBreakXETRA)
+                }
             )
         }
     }
@@ -187,12 +210,14 @@ fun LiveTickerAggregator(
 @Composable
 fun LiveTickerAggregatorExchangeItem(
     exchange: Exchange,
+    isRunning: Boolean,
     modifier: Modifier = Modifier
 ) {
     Card(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = SurfaceHigher),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        border = BorderStroke(2.dp, if (exchange.isBroken) Error else SurfaceHigher),
         modifier = modifier
     ) {
         Row(
@@ -214,12 +239,15 @@ fun LiveTickerAggregatorExchangeItem(
 
                 val date = Date(exchange.lastTimeUpdated)
                 val formatter = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
-                val time = formatter.format(date)
+                var time = formatter.format(date)
+                if (exchange.isBroken) {
+                    time = time + stringResource(R.string.live_ticker_aggregator_feed_down)
+                }
 
                 Text(
                     text = time,
                     style = HostGroteskNormalRegular,
-                    color = TextSecondary
+                    color = if (exchange.isBroken) Error else TextSecondary
                 )
             }
 
@@ -230,8 +258,75 @@ fun LiveTickerAggregatorExchangeItem(
                 modifier = Modifier
                     .fillMaxHeight()
             ) {
+                val status = when {
+                    exchange.isBroken -> BROKEN
+                    exchange.initialPrice == exchange.currentPrice -> EQUAL
+                    exchange.initialPrice > exchange.currentPrice -> {
+                        if (isRunning) UP_BACKGROUND else UP_NO_BACKGROUND
+                    }
+                    else -> {
+                        if (isRunning) DOWN_BACKGROUND else DOWN_NO_BACKGROUND
+                    }
+                }
+
+                var stage by remember { mutableIntStateOf(0) }
+
+                val backgroundSize by animateDpAsState(
+                    targetValue = when (stage) {
+                        1 -> 16.dp
+                        2 -> 24.dp
+                        else -> 0.dp
+                    },
+                    label = "backgroundSizeAnim"
+                )
+
+                LaunchedEffect(status) {
+                    if (status == UP_BACKGROUND || status == DOWN_BACKGROUND) {
+                        stage = 1
+                        stage = 2
+                        kotlinx.coroutines.delay(400)
+                        stage = 1
+                    }
+                }
+
+                val color = when(status) {
+                    UP_BACKGROUND -> PrimaryClear
+                    DOWN_BACKGROUND -> ErrorClear
+                    else -> Color.Transparent
+                }
+
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.size(24.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(backgroundSize)
+                            .background(color = color, shape = RoundedCornerShape(100.dp))
+                    )
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.size(24.dp)
+                    ) {
+                        AnimatedContent(
+                            targetState = status,
+                            transitionSpec = { fadeIn() togetherWith fadeOut() },
+                            label = "iconAnim"
+                        ) { currentStatus ->
+                            Icon(
+                                painter = painterResource(currentStatus.iconRes),
+                                tint = Color.Unspecified,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(4.dp))
+
                 Text(
-                    text = "${exchange.currentPrice} USD",
+                    text = "${exchange.currentPrice} ${stringResource(R.string.live_ticker_aggregator_usd)}",
                     style = HostGroteskMedium,
                     color = TextPrimary,
                 )

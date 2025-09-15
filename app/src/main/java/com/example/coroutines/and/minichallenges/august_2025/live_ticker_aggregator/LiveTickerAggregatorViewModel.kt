@@ -40,11 +40,13 @@ class LiveTickerAggregatorViewModel: ViewModel() {
                 var exchange = exc
                 while (true) {
                     delay(exchange.updateDelayMs)
+                    if (exchange.name == "XETRA" && _state.value.isXETRABroken) continue
+
                     val changeStatus = ChangeStatus.entries.random()
                     val newPrice = when (changeStatus) {
-                        NO_CHANGE -> exchange.initialPrice
-                        INCREASE -> (round((exchange.initialPrice + Random.nextDouble(0.01, 1.00)) * 100) / 100)
-                        DECREASE -> (round((exchange.initialPrice - Random.nextDouble(0.01, 1.00)) * 100) / 100)
+                        NO_CHANGE -> exchange.currentPrice
+                        INCREASE -> (round((exchange.currentPrice + Random.nextDouble(0.01, 1.00)) * 100) / 100)
+                        DECREASE -> (round((exchange.currentPrice - Random.nextDouble(0.01, 1.00)) * 100) / 100)
                     }
                     exchange = exchange.copy(
                         initialPrice = exchange.currentPrice,
@@ -64,7 +66,8 @@ class LiveTickerAggregatorViewModel: ViewModel() {
                 val now = System.currentTimeMillis()
                 if (_state.value.isRunning && now - lastEmissionTime >= _state.value.updatesRate) {
                     _state.update { current ->
-                        current.copy(exchanges = feeds.value.map { it.copy() })
+                        val sortedList = feeds.value.map { it.copy() }.sortedByDescending { it -> it.isBroken }
+                        current.copy(exchanges = sortedList)
                     }
 
                     lastEmissionTime = now
@@ -82,6 +85,42 @@ class LiveTickerAggregatorViewModel: ViewModel() {
                         isRunning = !current.isRunning
                     )
                 }
+            }
+
+            OnBreakXETRA -> {
+                feeds.update { current ->
+                    current.mapIsXETRABroken(true)
+                }
+                _state.update { current ->
+                    current.copy(
+                        exchanges = current.exchanges.mapIsXETRABroken(true).sortedByDescending { it -> it.isBroken },
+                        isXETRABroken = true
+                    )
+                }
+                viewModelScope.launch {
+                    delay(4000)
+                    feeds.update { current ->
+                        current.mapIsXETRABroken(false)
+                    }
+                    _state.update { current ->
+                        current.copy(
+                            exchanges = current.exchanges.mapIsXETRABroken(false),
+                            isXETRABroken = false
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    fun List<Exchange>.mapIsXETRABroken(isBroken: Boolean): List<Exchange> {
+        return map { item ->
+            if (item.name == "XETRA") {
+                item.copy(
+                    isBroken = isBroken,
+                )
+            } else {
+                item.copy()
             }
         }
     }
