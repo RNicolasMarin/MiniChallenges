@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -17,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -35,6 +37,7 @@ import com.example.coroutines.and.minichallenges.august_2025.SurfaceHighest
 import com.example.coroutines.and.minichallenges.august_2025.TextDisabled
 import com.example.coroutines.and.minichallenges.august_2025.TextPrimary
 import com.example.coroutines.and.minichallenges.august_2025.TextSecondary
+import com.example.coroutines.and.minichallenges.august_2025.live_ticker_aggregator.LiveTickerAggregatorAction.*
 import com.example.coroutines.and.minichallenges.ui.theme.HostGroteskMedium
 import com.example.coroutines.and.minichallenges.ui.theme.HostGroteskNormalRegular
 import com.example.coroutines.and.minichallenges.ui.theme.HostGroteskSemiBold
@@ -50,13 +53,17 @@ fun LiveTickerAggregator(
     val state by viewModel.state.collectAsState()
     LiveTickerAggregator(
         state = state,
-        modifier = modifier
+        modifier = modifier,
+        onAction = { action ->
+            viewModel.onAction(action)
+        }
     )
 }
 
 @Composable
 fun LiveTickerAggregator(
     state: LiveTickerAggregatorState,
+    onAction: (LiveTickerAggregatorAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -72,19 +79,43 @@ fun LiveTickerAggregator(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(
-                    text = stringResource(R.string.live_ticker_aggregator_title),
-                    style = HostGroteskSemiBold,
-                    color = TextPrimary
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = stringResource(R.string.live_ticker_aggregator_title),
+                        style = HostGroteskSemiBold,
+                        color = TextPrimary
+                    )
+
+                    if (!state.isRunning) {
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        Icon(
+                            painter = painterResource(R.drawable.ic_pause_text),
+                            tint = TextDisabled,
+                            contentDescription = "Icon",
+                            modifier = Modifier
+                                .size(16.dp)
+                        )
+                    }
+                }
+
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
                         .background(color = SurfaceHighest, shape = RoundedCornerShape(8.dp))
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
+
+                    val tickRate = if (state.isRunning) {
+                        stringResource(R.string.live_ticker_aggregator_rate, (1000 / state.updatesRate).toInt())
+                    } else {
+                        stringResource(R.string.live_ticker_aggregator_rate_stopped)
+                    }
+
                     Text(
-                        text = stringResource(R.string.live_ticker_aggregator_rate, (1000 / state.updatesRate).toInt()),
+                        text = tickRate,
                         style = HostGroteskMedium,
                         color = TextSecondary,
                     )
@@ -115,7 +146,6 @@ fun LiveTickerAggregator(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                //.weight(1f)
                 .background(color = SurfaceHigher, shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
                 .padding(16.dp)
         ) {
@@ -129,7 +159,9 @@ fun LiveTickerAggregator(
                 applyPadding = false,
                 enable = true,
                 painter = painterResource(if (state.isRunning) R.drawable.ic_pause_2 else R.drawable.ic_play_2),
-                onClick = {}
+                onClick = {
+                    onAction(OnPauseResume)
+                }
             )
 
             Spacer(modifier = Modifier.width(12.dp))
@@ -149,9 +181,7 @@ fun LiveTickerAggregator(
                 onClick = {}
             )
         }
-
     }
-
 }
 
 @Composable

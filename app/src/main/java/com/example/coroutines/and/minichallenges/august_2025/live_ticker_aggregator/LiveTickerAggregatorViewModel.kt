@@ -3,6 +3,7 @@ package com.example.coroutines.and.minichallenges.august_2025.live_ticker_aggreg
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.coroutines.and.minichallenges.august_2025.live_ticker_aggregator.ChangeStatus.*
+import com.example.coroutines.and.minichallenges.august_2025.live_ticker_aggregator.LiveTickerAggregatorAction.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -61,7 +62,7 @@ class LiveTickerAggregatorViewModel: ViewModel() {
         viewModelScope.launch {
             while (isActive) {
                 val now = System.currentTimeMillis()
-                if (now - lastEmissionTime >= _state.value.updatesRate) {
+                if (_state.value.isRunning && now - lastEmissionTime >= _state.value.updatesRate) {
                     _state.update { current ->
                         current.copy(exchanges = feeds.value.map { it.copy() })
                     }
@@ -69,6 +70,18 @@ class LiveTickerAggregatorViewModel: ViewModel() {
                     lastEmissionTime = now
                 }
                 delay(50)
+            }
+        }
+    }
+
+    fun onAction(action: LiveTickerAggregatorAction) {
+        when (action) {
+            OnPauseResume -> {
+                _state.update { current ->
+                    current.copy(
+                        isRunning = !current.isRunning
+                    )
+                }
             }
         }
     }
