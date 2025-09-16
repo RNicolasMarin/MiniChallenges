@@ -1,5 +1,6 @@
 package com.example.minichallenges
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,6 +29,7 @@ import com.example.minichallenges.ui.theme.HostGroteskSemiBold
 fun ChallengeSelector(
     challenges: List<Challenge>,
     title: Int,
+    onClick: (Screen) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -44,7 +46,10 @@ fun ChallengeSelector(
         ) { challenge ->
             ChallengeItem(
                 challenge = challenge,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                onClick = {
+                    onClick(challenge.screen)
+                }
             )
         }
     }
@@ -81,6 +86,7 @@ fun ChallengeSelectorTitle(
 @Composable
 fun ChallengeItem(
     challenge: Challenge,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -90,8 +96,7 @@ fun ChallengeItem(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = SurfaceHigher),
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-            modifier = Modifier.fillMaxWidth()
-            //.aspectRatio(1f)
+            modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)
         ) {
             Column(
                 modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp, horizontal = 10.dp)

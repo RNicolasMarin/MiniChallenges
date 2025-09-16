@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -61,6 +62,24 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+@Composable
+fun LiveTickerAggregatorRoot(
+    viewModel: LiveTickerAggregatorViewModel
+) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Surface)
+            .padding(top = 20.dp)
+    ) {
+        LiveTickerAggregator(
+            viewModel = viewModel,
+            modifier = Modifier
+                .fillMaxWidth()
+        )
+    }
+}
 @Composable
 fun LiveTickerAggregator(
     modifier: Modifier = Modifier,

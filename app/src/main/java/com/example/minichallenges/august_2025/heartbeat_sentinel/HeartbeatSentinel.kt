@@ -1,5 +1,6 @@
 package com.example.minichallenges.august_2025.heartbeat_sentinel
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,6 +42,7 @@ import androidx.compose.ui.unit.sp
 import com.example.minichallenges.R
 import com.example.minichallenges.august_2025.Error
 import com.example.minichallenges.august_2025.Primary
+import com.example.minichallenges.august_2025.Surface
 import com.example.minichallenges.august_2025.SurfaceHigher
 import com.example.minichallenges.august_2025.TextPrimary
 import com.example.minichallenges.august_2025.TextSecondary
@@ -53,6 +55,25 @@ import com.example.minichallenges.ui.theme.HostGroteskSemiBold
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
+
+@Composable
+fun HeartbeatSentinelRoot(
+    viewModel: HeartbeatSentinelViewModel = HeartbeatSentinelViewModel()
+) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Surface)
+            .padding(horizontal = 16.dp, vertical = 20.dp)
+    ) {
+        HeartbeatSentinel(
+            viewModel = viewModel,
+            modifier = Modifier
+                .fillMaxWidth()
+        )
+    }
+}
 
 @Composable
 fun HeartbeatSentinel(

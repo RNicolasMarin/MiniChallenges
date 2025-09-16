@@ -5,4 +5,5 @@ data class Challenge(
     val nameRes: Int,
     val topicsRes: Int,
     val descriptionRes: Int,
+    val screen: Screen
 )

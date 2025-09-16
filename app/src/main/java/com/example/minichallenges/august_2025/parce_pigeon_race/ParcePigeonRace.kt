@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.minichallenges.R
 import com.example.minichallenges.august_2025.ParcePigeonRaceButton
+import com.example.minichallenges.august_2025.Surface
 import com.example.minichallenges.august_2025.SurfaceHigher
 import com.example.minichallenges.august_2025.TextPrimary
 import com.example.minichallenges.august_2025.TextSecondary
@@ -39,6 +40,25 @@ import com.example.minichallenges.ui.theme.HostGroteskMedium
 import com.example.minichallenges.ui.theme.HostGroteskNormalRegular
 import com.example.minichallenges.ui.theme.HostGroteskSemiBold
 import java.text.DecimalFormat
+
+@Composable
+fun ParcePigeonRaceRoot(
+    viewModel: ParcePigeonRaceViewModel = ParcePigeonRaceViewModel(ParcePigeonRaceRepository())
+) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Surface)
+            .padding(26.dp)
+    ) {
+        ParcePigeonRace(
+            viewModel = viewModel,
+            modifier = Modifier
+                .fillMaxWidth()
+        )
+    }
+}
 
 @Composable
 fun ParcePigeonRace(

@@ -9,9 +9,11 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -42,6 +44,7 @@ import com.example.minichallenges.august_2025.ErrorClear
 import com.example.minichallenges.august_2025.OrderQueueOutpostButton
 import com.example.minichallenges.august_2025.Overload
 import com.example.minichallenges.august_2025.Primary
+import com.example.minichallenges.august_2025.Surface
 import com.example.minichallenges.august_2025.SurfaceHigher
 import com.example.minichallenges.august_2025.SurfaceHighest
 import com.example.minichallenges.august_2025.TextDisabled
@@ -55,6 +58,25 @@ import com.example.minichallenges.ui.theme.HostGroteskMedium
 import com.example.minichallenges.ui.theme.HostGroteskNormalRegular
 import com.example.minichallenges.ui.theme.HostGroteskSemiBold
 import com.example.minichallenges.ui.theme.MiniChallengesTheme
+
+@Composable
+fun OrderQueueOutpostRoot(
+    viewModel: OrderQueueOutpostViewModel = OrderQueueOutpostViewModel()
+) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Surface)
+            .padding(26.dp)
+    ) {
+        OrderQueueOutpost(
+            viewModel = viewModel,
+            modifier = Modifier
+                .fillMaxWidth()
+        )
+    }
+}
 
 @Composable
 fun OrderQueueOutpost(
