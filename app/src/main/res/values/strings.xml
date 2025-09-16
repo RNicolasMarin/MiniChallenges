@@ -1,6 +1,13 @@
 <resources>
     <string name="app_name">MiniChallenges</string>
 
+    <string name="mini_challenges">Mini Challenges</string>
+    <string name="mini_challenges_august_2025">August 2025\nAsync Adventures</string>
+
+
+    <string name="thermometer_trek_challenge_name">Thermometer Trek</string>
+    <string name="thermometer_trek_challenge_topics">[Coroutines · Flow · Data Filtering · UI]</string>
+    <string name="thermometer_trek_challenge_description">This challenge simulates reading temperature data from a virtual sensor. The goal was build a UI that processes a data stream: filters it, transforms it, and displays only valid readings.</string>
     <string name="thermometer_trek_start_title">Thermometer Treck</string>
     <string name="thermometer_trek_start_description">Press Start to begin tracking temperature</string>
     <string name="thermometer_trek_start_button">Start</string>
@@ -11,6 +18,12 @@
     <string name="thermometer_trek_reset_button">Reset</string>
 
 
+
+    <string name="order_queue_outpost_challenge_name">Order Queue Outpost</string>
+    <string name="order_queue_outpost_challenge_topics">[Coroutines · Channels · Realtime Processing · UI]</string>
+    <string name="order_queue_outpost_challenge_description">This challenge simulates a real-time order queue system. A producer sends orders into a channel with a fixed delay, while a consumer processes them with a random delay. If the consumer is paused or slower than the producer, the queue starts to grow — eventually reaching and exceeding its capacity.</string>
+
+
     <string name="order_queue_outpost_start_title">Order Queue Outpost</string>
     <string name="order_queue_outpost_start_description">Press Play to start processing orders.</string>
     <string name="order_queue_outpost_start_button">Start</string>
@@ -19,6 +32,12 @@
 
     <string name="order_queue_outpost_paused_going_queue">Queue: %1$d/25</string>
     <string name="order_queue_outpost_paused_going_percentage">%1$d%%</string>
+
+
+
+    <string name="parce_pigeon_race_challenge_name">Parce Pigeon Race</string>
+    <string name="parce_pigeon_race_challenge_topics">[Coroutines · Concurrency · Image Loading · UI]</string>
+    <string name="parce_pigeon_race_challenge_description">This challenge simulates parallel downloading of six images to test concurrency, show individual progress, and measure actual time and size for each task. The user can restart the process and observe different results each time.</string>
 
     <string name="parce_pigeon_race_can_run_title">Parcel Pigeon Race</string>
     <string name="parce_pigeon_race_can_run_description">Press Run Again to fetch images</string>
@@ -31,6 +50,12 @@
     <string name="parce_pigeon_race_running_run_again_time">%1$ds</string>
     <string name="parce_pigeon_race_running_run_again_button">Run Again</string>
 
+
+
+    <string name="heartbeat_sentinel_challenge_name">Heartbeat Sentinel</string>
+    <string name="heartbeat_sentinel_challenge_topics">[Coroutines · Real-time Monitoring · Timer · UI]</string>
+    <string name="heartbeat_sentinel_challenge_description">This challenge simulates real-time monitoring of three stations. Each station emits a "heartbeat" signal at its own frequency. If a station goes silent for more than 2 seconds, it is considered offline — a status message is displayed and a snackbar appears. When the heartbeat resumes, the status returns to online and another snackbar is shown.</string>
+
     <string name="heartbeat_sentinel_title">Heartbeat Sentinel</string>
     <string name="heartbeat_sentinel_operational">All Stations Operational</string>
     <string name="heartbeat_sentinel_offline">%1$s offline %2$s s</string>
@@ -40,6 +65,12 @@
 
     <string name="heartbeat_sentinel_is_offline">is offline</string>
     <string name="heartbeat_sentinel_is_online">is online</string>
+
+
+
+    <string name="live_ticker_aggregator_challenge_name">Live Ticker Aggregator</string>
+    <string name="live_ticker_aggregator_challenge_topics">[Coroutines · Concurrency · Real-time Feed · UI]</string>
+    <string name="live_ticker_aggregator_challenge_description">The application simulates real-time price updates streaming from multiple stock exchanges. Each exchange emits its own updates independently, with varying frequency and random delays. All updates appear in a shared ticker feed, which displays only the 10 most recent entries. The user can pause or resume screen updates, and observe how the system handles a simulated failure of one feed, followed by automatic recovery.</string>
 
     <string name="live_ticker_aggregator_title">Live-Ticker</string>
     <string name="live_ticker_aggregator_rate">Tick Rate: %1$d/s</string>
