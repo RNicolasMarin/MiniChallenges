@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.coroutines.and.minichallenges"
+    namespace = "com.example.minichallenges"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.coroutines.and.minichallenges"
+        applicationId = "com.example.minichallenges"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
