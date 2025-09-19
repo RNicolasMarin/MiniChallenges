@@ -32,7 +32,7 @@ val ParkinsansNormalRegular = TextStyle(
 val ParkinsansMedium = TextStyle(
     fontFamily = Parkinsans,
     fontWeight = FontWeight.Medium,
-    fontSize = 17.sp,
-    lineHeight = 20.sp,
+    fontSize = 24.sp,
+    lineHeight = 24.sp,
     letterSpacing = 0.sp
 )

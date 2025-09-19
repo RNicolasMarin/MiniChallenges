@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.sp
 import com.example.minichallenges.R
 import com.example.minichallenges.september_2025.Lime
 import com.example.minichallenges.september_2025.Orange
+import com.example.minichallenges.september_2025.ParkinsansMedium
 import com.example.minichallenges.september_2025.ParkinsansNormalRegular
 import com.example.minichallenges.september_2025.ParkinsansSemiBold
 import com.example.minichallenges.september_2025.Pink
@@ -110,10 +111,10 @@ fun ExpandableLineupList() {
             items = stages,
             key = { stage -> stage.stageName },
         ) {
-            ExpandableLineupListItem(
+            ExpandableLineupListStage(
                 expanded = it.stageName == selected,
                 onClick = {
-                    selected = it.stageName
+                    selected = if (selected == it.stageName) "" else it.stageName
                 },
                 stage = it
             )
@@ -122,7 +123,7 @@ fun ExpandableLineupList() {
 }
 
 @Composable
-fun ExpandableLineupListItem(
+fun ExpandableLineupListStage(
     expanded: Boolean,
     onClick: () -> Unit,
     stage: Stage,
@@ -139,30 +140,90 @@ fun ExpandableLineupListItem(
                 .fillMaxWidth()
                 .clickable(onClick = onClick)
         ) {
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 40.dp)
             ) {
-                Text(
-                    text = stage.stageName,
-                    style = ParkinsansSemiBold.copy(
-                        fontSize = 38.sp,
-                        lineHeight = 38.sp,
-                    ),
-                    color = TextPrimary
-                )
-                Icon(
-                    painter = painterResource(if (expanded) R.drawable.ic_minus else R.drawable.ic_plus),
-                    tint = Color.Unspecified,
-                    contentDescription = null,
-                    modifier = Modifier.size(40.dp)
-                )
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    Text(
+                        text = stage.stageName,
+                        style = ParkinsansSemiBold.copy(
+                            fontSize = 38.sp,
+                            lineHeight = 38.sp,
+                        ),
+                        color = TextPrimary
+                    )
+                    Icon(
+                        painter = painterResource(if (expanded) R.drawable.ic_minus else R.drawable.ic_plus),
+                        tint = Color.Unspecified,
+                        contentDescription = null,
+                        modifier = Modifier.size(40.dp)
+                    )
+                }
+
+                if (expanded) {
+                    Spacer(modifier = Modifier.height(40.dp))
+
+                    stage.performers.onEachIndexed { position, performer ->
+                        ExpandableLineupListPerformer(
+                            performer = performer,
+                            isLast = position == stage.performers.size - 1
+                        )
+                    }
+                }
             }
         }
         Spacer(modifier = Modifier.height(4.dp))
     }
 
+}
+
+@Composable
+fun ExpandableLineupListPerformer(
+    performer: Performer,
+    isLast: Boolean,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            Text(
+                text = performer.performerName,
+                style = ParkinsansMedium,
+                color = TextPrimary
+            )
+            Text(
+                text = performer.time,
+                style = ParkinsansSemiBold.copy(
+                    fontSize = 24.sp,
+                    lineHeight = 24.sp,
+                ),
+                color = TextPrimary
+            )
+        }
+        if (!isLast) {
+            Spacer(modifier = Modifier.height(28.dp))
+
+            Spacer(
+                modifier = Modifier
+                    .height(2.dp)
+                    .fillMaxWidth()
+                    .background(TextPrimary)
+            )
+
+            Spacer(modifier = Modifier.height(28.dp))
+        }
+    }
 }
