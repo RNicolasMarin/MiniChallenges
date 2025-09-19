@@ -80,4 +80,9 @@
     <string name="live_ticker_aggregator_pause">Pause</string>
     <string name="live_ticker_aggregator_resume">Resume</string>
     <string name="live_ticker_aggregator_break">Break XETRA</string>
+
+
+    <string name="expandable_lineup_list_title">Festival Lineup</string>
+    <string name="expandable_lineup_list_subtitle">Tap a stage to view performers</string>
+
 </resources>

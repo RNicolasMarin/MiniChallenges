@@ -10,6 +10,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.example.minichallenges.august_2025.live_ticker_aggregator.LiveTickerAggregatorViewModel
+import com.example.minichallenges.september_2025.expandable_lineup_list.ExpandableLineupList
 import com.example.minichallenges.ui.theme.MiniChallengesTheme
 
 class MainActivity : ComponentActivity() {
@@ -22,11 +23,12 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    val viewmodel by viewModels<LiveTickerAggregatorViewModel>()
+                    /*val viewmodel by viewModels<LiveTickerAggregatorViewModel>()
                     NavigationRoot(
                         navController = rememberNavController(),
                         liveTickerAggregatorViewModel = viewmodel
-                    )
+                    )*/
+                    ExpandableLineupList()
                 }
             }
         }
