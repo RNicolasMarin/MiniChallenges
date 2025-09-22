@@ -85,4 +85,15 @@
     <string name="expandable_lineup_list_title">Festival Lineup</string>
     <string name="expandable_lineup_list_subtitle">Tap a stage to view performers</string>
 
+
+    <string name="ticket_builder_title">Ticket Builder</string>
+    <string name="ticket_builder_subtitle">Select Ticket Type &amp; Quantity</string>
+    <string name="ticket_builder_type">Ticket Type:</string>
+    <string name="ticket_builder_type_standard">Standard</string>
+    <string name="ticket_builder_type_vip">VIP</string>
+    <string name="ticket_builder_type_backstage">Backstage</string>
+    <string name="ticket_builder_type_quantity">Quantity:</string>
+    <string name="ticket_builder_type_total">Total:</string>
+    <string name="ticket_builder_type_purchase">Purchase</string>
+
 </resources>
