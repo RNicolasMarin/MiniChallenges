@@ -1,6 +1,8 @@
 package com.example.minichallenges.september_2025.ticket_builder
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,10 +19,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,13 +43,16 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.minichallenges.R
+import com.example.minichallenges.september_2025.Lime
 import com.example.minichallenges.september_2025.ParkinsansMedium
 import com.example.minichallenges.september_2025.ParkinsansNormalRegular
 import com.example.minichallenges.september_2025.ParkinsansSemiBold
 import com.example.minichallenges.september_2025.Surface
 import com.example.minichallenges.september_2025.SurfaceHigher
+import com.example.minichallenges.september_2025.TextDisabled
 import com.example.minichallenges.september_2025.TextPrimary
 import com.example.minichallenges.september_2025.TextSecondary
+import com.example.minichallenges.september_2025.ticket_builder.TicketType.*
 import com.example.minichallenges.ui.bottomBarHeight
 import com.example.minichallenges.ui.statusBarHeight
 import com.example.minichallenges.ui.theme.MiniChallengesTheme
@@ -103,17 +115,34 @@ fun ColumnScope.TicketBuilderTitles(
 fun ColumnScope.TicketBuilderModalAndButton(
     modifier: Modifier = Modifier
 ) {
+    var quantity by remember { mutableIntStateOf(1) }
+    var type by remember { mutableStateOf<TicketType?>(null) }
+
     Column(
         modifier = modifier
             .fillMaxWidth()
             .weight(3f)
             .padding(horizontal = 4.dp)
     ) {
-        TicketBuilderModal()
+        TicketBuilderModal(
+            quantity = quantity,
+            onSelected = {
+                type = it
+            },
+            type = type,
+            increaseQuantity = {
+                quantity = quantity + 1
+            },
+            decreaseQuantity = {
+                quantity = quantity - 1
+            },
+        )
 
         VerticalSpace(4.dp)
 
-        TicketBuilderButton()
+        TicketBuilderButton(
+            enable = quantity > 0 && type != null
+        )
 
         VerticalSpace(4.dp)
     }
@@ -121,6 +150,11 @@ fun ColumnScope.TicketBuilderModalAndButton(
 
 @Composable
 fun ColumnScope.TicketBuilderModal(
+    quantity: Int,
+    type: TicketType?,
+    onSelected: (TicketType) -> Unit,
+    increaseQuantity: () -> Unit,
+    decreaseQuantity: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -132,14 +166,21 @@ fun ColumnScope.TicketBuilderModal(
             .padding(horizontal = 16.dp)
     ) {
         TicketBuilderTypes(
+            type = type,
+            onSelected = onSelected,
             modifier = Modifier.fillMaxWidth()
         )
 
         TicketBuilderQuantity(
+            quantity = quantity,
+            increaseQuantity = increaseQuantity,
+            decreaseQuantity = decreaseQuantity,
             modifier = Modifier.fillMaxWidth()
         )
 
         TicketBuilderTotal(
+            quantity = quantity,
+            type = type,
             modifier = Modifier.fillMaxWidth()
         )
     }
@@ -147,6 +188,8 @@ fun ColumnScope.TicketBuilderModal(
 
 @Composable
 fun TicketBuilderTypes(
+    type: TicketType?,
+    onSelected: (TicketType) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -165,18 +208,27 @@ fun TicketBuilderTypes(
         VerticalSpace(8.dp, 16.dp)
 
         TicketBuilderType(
+            selected = type,
+            onSelected = onSelected,
+            ticketType = STANDARD,
             modifier = Modifier.fillMaxWidth()
         )
 
         VerticalSpace(4.dp, 8.dp)
 
         TicketBuilderType(
+            selected = type,
+            onSelected = onSelected,
+            ticketType = VIP,
             modifier = Modifier.fillMaxWidth()
         )
 
         VerticalSpace(4.dp, 8.dp)
 
         TicketBuilderType(
+            selected = type,
+            onSelected = onSelected,
+            ticketType = BACKSTAGE,
             modifier = Modifier.fillMaxWidth()
         )
     }
@@ -184,6 +236,9 @@ fun TicketBuilderTypes(
 
 @Composable
 fun TicketBuilderType(
+    selected: TicketType?,
+    onSelected: (TicketType) -> Unit,
+    ticketType: TicketType,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -191,27 +246,48 @@ fun TicketBuilderType(
         modifier = modifier
     ) {
         RadioButton(
-            selected = false,
-            onClick = {  },
-            Modifier.size(24.dp)
+            colors = RadioButtonDefaults.colors().copy(
+                selectedColor = TextPrimary,
+                unselectedColor = TextPrimary
+            ),
+            selected = selected == ticketType,
+            onClick = {
+                onSelected(ticketType)
+            },
+            modifier = Modifier.size(24.dp)
         )
 
-        Spacer(Modifier.width(16.dp))
+        Spacer(Modifier.width(8.dp))
 
         CustomText(
-            R.string.ticket_builder_type,
+            ticketType.textRes,
             style = ParkinsansMedium,
             color = TextPrimary,
             min = 12.sp,
             max = 24.sp,
             lineHeight = 24.sp,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.weight(1f)
+        )
+
+        Spacer(Modifier.width(8.dp))
+
+        CustomText(
+            "$${ticketType.price}",
+            style = ParkinsansSemiBold,
+            color = TextPrimary,
+            min = 12.sp,
+            max = 24.sp,
+            lineHeight = 24.sp,
+            modifier = Modifier
         )
     }
 }
 
 @Composable
 fun TicketBuilderQuantity(
+    quantity: Int,
+    increaseQuantity: () -> Unit,
+    decreaseQuantity: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -234,10 +310,14 @@ fun TicketBuilderQuantity(
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            TicketBuilderQuantityButton()
+            TicketBuilderQuantityButton(
+                enable = quantity > 1,
+                iconRes = R.drawable.ic_minus_2,
+                onClick = decreaseQuantity
+            )
 
             CustomText(
-                "1",
+                quantity.toString(),
                 style = ParkinsansSemiBold.copy(
                     textAlign = TextAlign.Center
                 ),
@@ -248,23 +328,34 @@ fun TicketBuilderQuantity(
                 modifier = Modifier.weight(1f)
             )
 
-            TicketBuilderQuantityButton()
+            TicketBuilderQuantityButton(
+                enable = true,
+                iconRes = R.drawable.ic_plus,
+                onClick = increaseQuantity
+            )
         }
     }
 }
 
 @Composable
 fun TicketBuilderQuantityButton(
+    enable: Boolean,
+    onClick: () -> Unit,
+    @DrawableRes iconRes: Int,
     modifier: Modifier = Modifier
 ) {
     Box(
         modifier = modifier
-            .background(Surface, RoundedCornerShape(12.dp))
+            .background(if (enable) Surface else SurfaceHigher, RoundedCornerShape(12.dp))
             .padding(14.dp)
+            .clickable(
+                enabled = enable,
+                onClick = onClick
+            )
     ) {
         Icon(
-            painter = painterResource(R.drawable.ic_minus_2),
-            tint = Color.Unspecified,
+            painter = painterResource(iconRes),
+            tint = if (enable) TextPrimary else TextDisabled,
             contentDescription = null,
             modifier = Modifier.size(40.dp)
         )
@@ -273,6 +364,8 @@ fun TicketBuilderQuantityButton(
 
 @Composable
 fun TicketBuilderTotal(
+    quantity: Int,
+    type: TicketType?,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -287,6 +380,7 @@ fun TicketBuilderTotal(
         VerticalSpace(16.dp, 32.dp)
 
         Row(
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth(),
         ) {
             CustomText(
@@ -296,7 +390,23 @@ fun TicketBuilderTotal(
                 min = 14.sp,
                 max = 28.sp,
                 lineHeight = 28.sp,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.weight(1f)
+            )
+
+            Spacer(Modifier.width(8.dp))
+
+            val total = type?.let {
+                it.price * quantity
+            } ?: "0"
+
+            CustomText(
+                "$$total",
+                style = ParkinsansSemiBold,
+                color = TextPrimary,
+                min = 14.sp,
+                max = 28.sp,
+                lineHeight = 28.sp,
+                modifier = Modifier
             )
         }
     }
@@ -304,9 +414,18 @@ fun TicketBuilderTotal(
 
 @Composable
 fun TicketBuilderButton(
+    enable: Boolean,
     modifier: Modifier = Modifier
 ) {
     Button(
+        enabled = enable,
+        shape = RoundedCornerShape(12.dp),
+        colors = ButtonDefaults.buttonColors().copy(
+            containerColor = Lime,
+            disabledContainerColor = SurfaceHigher,
+            contentColor = TextPrimary,
+            disabledContentColor = TextDisabled
+        ),
         modifier = modifier.fillMaxWidth(),
         onClick = {},
     ) {
@@ -315,7 +434,7 @@ fun TicketBuilderButton(
             style = ParkinsansSemiBold.copy(
                 textAlign = TextAlign.Center
             ),
-            color = TextSecondary,
+            color = if (enable) TextPrimary else TextDisabled,
             min = 15.sp,
             max = 30.sp,
             lineHeight = 30.sp,
@@ -325,7 +444,6 @@ fun TicketBuilderButton(
 }
 
 
-/////
 
 
 
@@ -382,6 +500,12 @@ fun CustomText(
             maxFontSize = max
         )
     )
+}
+
+enum class TicketType(val textRes: Int, val price: Int){
+    STANDARD(R.string.ticket_builder_type_standard, 40),
+    VIP(R.string.ticket_builder_type_vip, 70),
+    BACKSTAGE(R.string.ticket_builder_type_backstage, 120)
 }
 
 @Preview(name = "PortraitSmall", widthDp = 300, heightDp = 672)
