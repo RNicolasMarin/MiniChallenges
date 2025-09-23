@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.example.minichallenges.august_2025.live_ticker_aggregator.LiveTickerAggregatorViewModel
 import com.example.minichallenges.september_2025.expandable_lineup_list.ExpandableLineupList
+import com.example.minichallenges.september_2025.map_chip_filter.MapChipFilter
 import com.example.minichallenges.september_2025.ticket_builder.TicketBuilder
 import com.example.minichallenges.ui.theme.MiniChallengesTheme
 
@@ -29,7 +30,7 @@ class MainActivity : ComponentActivity() {
                         navController = rememberNavController(),
                         liveTickerAggregatorViewModel = viewmodel
                     )*/
-                    TicketBuilder()
+                    MapChipFilter()
                 }
             }
         }

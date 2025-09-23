@@ -96,4 +96,12 @@
     <string name="ticket_builder_type_total">Total:</string>
     <string name="ticket_builder_type_purchase">Purchase</string>
 
+
+
+    <string name="map_chip_filter_title">Festival Map</string>
+    <string name="map_chip_filter_stages">Stages</string>
+    <string name="map_chip_filter_food">Food</string>
+    <string name="map_chip_filter_wc">WC</string>
+
+
 </resources>
