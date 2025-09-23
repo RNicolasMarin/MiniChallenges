@@ -1,5 +1,6 @@
 package com.example.minichallenges.september_2025.map_chip_filter
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -15,8 +16,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -44,7 +46,10 @@ import com.example.minichallenges.ui.theme.MiniChallengesTheme
 
 @Composable
 fun MapChipFilter() {
-    var filters by remember { mutableStateOf(chipFilters) }
+    var stages by remember { mutableStateOf(Stages(false)) }
+    var food by remember { mutableStateOf(Food(false)) }
+    var wc by remember { mutableStateOf(Wc(false)) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -70,31 +75,81 @@ fun MapChipFilter() {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                items(
-                    items = filters,
-                    key = { chipFilter -> chipFilter.optionNumber }
-                ) { chipFilter ->
+                item {
                     CustomChip(
-                        chipFilter = chipFilter,
+                        chipFilter = stages,
                         onClick = {
-                            filters = filters.map {
-                                if (it.optionNumber == chipFilter.optionNumber) {
-                                    val newChecked = !it.checked
-                                    when (it) {
-                                        is Food -> Food(newChecked)
-                                        is Stages -> Stages(newChecked)
-                                        is Wc -> Wc(newChecked)
-                                    }
-                                } else {
-                                    it
-                                }
-                            }
+                            stages = Stages(!stages.checked)
+                        }
+                    )
+                }
+
+                item {
+                    CustomChip(
+                        chipFilter = food,
+                        onClick = {
+                            food = Food(!food.checked)
+                        }
+                    )
+                }
+
+                item {
+                    CustomChip(
+                        chipFilter = wc,
+                        onClick = {
+                            wc = Wc(!wc.checked)
                         }
                     )
                 }
             }
         }
+
+        HorizontalDivider(
+            modifier = Modifier.fillMaxWidth(),
+            thickness = 1.dp,
+            color = TextPrimary
+        )
+
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            CustomImage(
+                imageRes = R.mipmap.background_map,
+                descriptionRes = R.string.map_chip_filter_title
+            )
+            if (stages.checked) {
+                CustomImage(
+                    imageRes = R.mipmap.background_stages,
+                    descriptionRes = R.string.map_chip_filter_stages
+                )
+            }
+            if (food.checked) {
+                CustomImage(
+                    imageRes = R.mipmap.background_food,
+                    descriptionRes = R.string.map_chip_filter_food
+                )
+            }
+            if (wc.checked) {
+                CustomImage(
+                    imageRes = R.mipmap.background_wc,
+                    descriptionRes = R.string.map_chip_filter_wc
+                )
+            }
+        }
     }
+}
+
+@Composable
+fun CustomImage(
+    imageRes: Int,
+    descriptionRes: Int
+) {
+    Image(
+        painter = painterResource(id = imageRes),
+        contentDescription = stringResource(descriptionRes),
+        contentScale = ContentScale.FillBounds,
+        modifier = Modifier.fillMaxSize()
+    )
 }
 
 @Composable
