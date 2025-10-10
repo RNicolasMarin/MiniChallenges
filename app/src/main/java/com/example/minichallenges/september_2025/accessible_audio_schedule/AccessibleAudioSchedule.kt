@@ -33,6 +33,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -55,8 +57,7 @@ fun AccessibleAudioSchedule() {
     val performances = listOf(
         Performance(
             "Bon Iver",
-            //"15:30",
-            "15:123456789012345678901234567890asdfggg",
+            "15:30",
             Venue.MAIN_STAGE,
             "Atmospheric folk-electronic set to start the day.",
             Genre.INDIE
@@ -162,52 +163,62 @@ fun PerformanceCard(
     performance: Performance,
     modifier: Modifier = Modifier
 ) {
-    Box(
+    val accessibilityLabel = buildString {
+        append(performance.genre.genreName)
+        append(", ")
+        append(performance.artist)
+        append(", ")
+        append(performance.time)
+        append(", ")
+        append(performance.venue.venueName)
+        append(". ")
+        append(performance.description)
+    }
+
+    Card(
+        colors = CardDefaults.cardColors(containerColor = SurfaceHigher),
+        shape = RoundedCornerShape(12.dp),
         modifier = modifier
-    ) {
-        Card(
-            colors = CardDefaults.cardColors(containerColor = SurfaceHigher),
-            shape = RoundedCornerShape(12.dp),
-            modifier = Modifier
-                .fillMaxWidth(),
-        ) {
-            Column(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 20.dp)
-            ) {
-                Text(
-                    text = performance.genre.genreName,
-                    modifier = Modifier
-                        .background(
-                            color = performance.genre.color,
-                            shape = RoundedCornerShape(100.dp)
-                        )
-                        .padding(horizontal = 10.dp, vertical = 6.dp),
-                    style = ParkinsansMedium.copy(
-                        fontSize = 14.sp,
-                        color = TextPrimary
-                    )
-                )
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                HorizontalScrollableContainer(
-                    modifier = Modifier.fillMaxWidth(),
-                    artists = performance.artist,
-                    timeAndStage = performance.time + " • " + performance.venue.venueName
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                // Description
-                Text(
-                    text = performance.description,
-                    style = ParkinsansNormalRegular.copy(
-                        fontSize = 14.sp,
-                        lineHeight = (14.sp * 1.05f),
-                        color = TextSecondary
-                    )
-                )
+            .semantics(mergeDescendants = true) {
+                contentDescription = accessibilityLabel
             }
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 20.dp)
+        ) {
+            Text(
+                text = performance.genre.genreName,
+                modifier = Modifier
+                    .background(
+                        color = performance.genre.color,
+                        shape = RoundedCornerShape(100.dp)
+                    )
+                    .padding(horizontal = 10.dp, vertical = 6.dp),
+                style = ParkinsansMedium.copy(
+                    fontSize = 14.sp,
+                    color = TextPrimary
+                )
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            HorizontalScrollableContainer(
+                modifier = Modifier.fillMaxWidth(),
+                artists = performance.artist,
+                timeAndStage = "${performance.time} • ${performance.venue.venueName}"
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Description
+            Text(
+                text = performance.description,
+                style = ParkinsansNormalRegular.copy(
+                    fontSize = 14.sp,
+                    lineHeight = (14.sp * 1.05f),
+                    color = TextSecondary
+                )
+            )
         }
     }
 }
