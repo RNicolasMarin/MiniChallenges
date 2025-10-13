@@ -1,5 +1,6 @@
 package com.example.minichallenges.september_2025.multi_stage_timeline_painter
 
+import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
@@ -13,6 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -22,6 +24,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.drawText
@@ -41,12 +44,20 @@ import com.example.minichallenges.september_2025.Surface
 import com.example.minichallenges.september_2025.TextPrimary
 import com.example.minichallenges.september_2025.TextSecondary
 import com.example.minichallenges.ui.theme.MiniChallengesTheme
+import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Locale
 import kotlin.math.floor
 
 @Composable
 fun MultiStageTimelinePainter() {
+
+    var isStarting by remember { mutableStateOf(true) }
+
+    LaunchedEffect(Unit) {
+        delay(3000) // 3 seconds delay
+        isStarting = false
+    }
 
     val performances = listOf(
         Performance("DJ A", "Electro Stage", "12:00", "13:00"),
@@ -79,6 +90,8 @@ fun MultiStageTimelinePainter() {
     
     val stages = listOf("Main", "Rock", "Electro")
 
+    var titleSize by remember { mutableStateOf(IntSize.Zero) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -88,6 +101,10 @@ fun MultiStageTimelinePainter() {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 16.dp)
+                .onGloballyPositioned {
+                    titleSize = it.size
+                    Log.d("TAGNN", "${it.size.width} ${it.size.height}")
+                }
         ) {
             Text(
                 text = "Festival Schedule",
@@ -105,8 +122,14 @@ fun MultiStageTimelinePainter() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .horizontalScroll(horizontalScrollState)
-                .verticalScroll(verticalScrollState)
+                .horizontalScroll(
+                    state = horizontalScrollState,
+                    enabled = !isStarting,
+                )
+                .verticalScroll(
+                    state = verticalScrollState,
+                    enabled = !isStarting,
+                )
         ) {
             val configuration = LocalConfiguration.current
 
@@ -166,9 +189,6 @@ fun MultiStageTimelinePainter() {
 
                 val stageTotalHeight = 16.dp.toPx() * 2 + stageHeight
 
-
-
-
                 var hoursY = stageTotalHeight + 1.dp.toPx() + 20.dp.toPx()
 
                 hours.forEachIndexed { index, hour ->
@@ -209,7 +229,6 @@ fun MultiStageTimelinePainter() {
 
 
                 (0..((hours.size - 1) * 2 ) -1).forEachIndexed { index, _ ->
-                    //Log.d("TAGNNN", "INDEX: $index")
                     stages.forEach { _ ->
                         drawRect(
                             color = Outline,
@@ -227,23 +246,6 @@ fun MultiStageTimelinePainter() {
                     }
                     gridSquareX = hoursColumnWidth
                     gridSquareY = gridSquareY + getHalfHeight(hoursHeight, index) + 40.dp.toPx()
-
-                    /*stages.forEach { _ ->
-                        drawRect(
-                            color = Outline,
-                            topLeft = Offset(gridSquareX, gridSquareY),
-                            size = Size(stageWidth, hoursHeight / 2 + 40.dp.toPx()),
-                            style = Stroke(width = 1.dp.toPx())
-                        )
-
-                        drawRect(
-                            color = Surface,
-                            topLeft = Offset(gridSquareX + 1.dp.toPx(), gridSquareY + 1.dp.toPx()),
-                            size = Size(stageWidth - 2.dp.toPx(), hoursHeight / 2 + 40.dp.toPx() - 2.dp.toPx()),
-                        )
-                        gridSquareX = gridSquareX + stageWidth
-                    }
-                    gridSquareX = hoursColumnWidth*/
                 }
 
                 stages.forEach { _ ->
@@ -344,6 +346,36 @@ fun MultiStageTimelinePainter() {
                     drawText(
                         textLayoutResult = measuredTextArtist,
                         topLeft = Offset(stageX + 6.dp.toPx(), stageY + 8.dp.toPx() + measuredTextTime.size.height + 6.dp.toPx()),
+                    )
+                }
+
+                if (isStarting) {
+                    drawRect(
+                        color = Color(0xBF221513),
+                        topLeft = Offset(0f, stageTotalHeight + 1.dp.toPx()),
+                        size = Size(size.width, size.height - stageTotalHeight + 1.dp.toPx()),
+                    )
+
+                    val measuredTextZoom = textMeasurer.measure(
+                        text = "Pinch to Zoom",
+                        style = ParkinsansMedium.copy(
+                            fontSize = 20.sp,
+                            lineHeight = 20.sp,
+                            color = Surface
+                        ),
+                        maxLines = Int.MAX_VALUE,
+                    )
+
+                    val screenHeight = configuration.screenHeightDp.dp.toPx()
+                    val titleHeight = titleSize.height
+                    val stageHeight = stageTotalHeight + 1.dp.toPx()
+
+                    drawText(
+                        textLayoutResult = measuredTextZoom,
+                        topLeft = Offset(
+                            (size.width - measuredTextZoom.size.width) / 2,
+                            stageHeight + (screenHeight - titleHeight - stageHeight - measuredTextZoom.size.height) / 2
+                        )
                     )
                 }
             }
