@@ -1,6 +1,5 @@
 package com.example.minichallenges.september_2025.multi_stage_timeline_painter
 
-import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
@@ -21,6 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.AnnotatedString
@@ -30,17 +30,45 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.minichallenges.september_2025.Lime
+import com.example.minichallenges.september_2025.Orange
 import com.example.minichallenges.september_2025.Outline
 import com.example.minichallenges.september_2025.ParkinsansMedium
 import com.example.minichallenges.september_2025.ParkinsansNormalRegular
 import com.example.minichallenges.september_2025.ParkinsansSemiBold
+import com.example.minichallenges.september_2025.Purple
 import com.example.minichallenges.september_2025.Surface
 import com.example.minichallenges.september_2025.TextPrimary
 import com.example.minichallenges.september_2025.TextSecondary
 import com.example.minichallenges.ui.theme.MiniChallengesTheme
+import java.text.SimpleDateFormat
+import java.util.Locale
+import kotlin.math.floor
 
 @Composable
 fun MultiStageTimelinePainter() {
+
+    val performances = listOf(
+        Performance("DJ A", "Electro Stage", "12:00", "13:00"),
+        Performance("Band X", "Main Stage", "13:00", "14:30"),
+        Performance("RockZ", "Rock Stage", "14:00", "15:00"),
+        Performance("Ambient Line", "Electro Stage", "15:00", "16:30"),
+        Performance("Florence + The Machine", "Main Stage", "16:30", "18:00"),
+        Performance("The National", "Rock Stage", "17:00", "18:00"),
+        Performance("Jamie xx", "Electro Stage", "18:00", "19:00"),
+        Performance("Tame Impala", "Main Stage", "19:00", "20:30"),
+        Performance("Arctic Monkeys", "Rock Stage", "20:00", "21:30"),
+        Performance("Radiohead", "Main Stage", "21:30", "23:00")
+    )
+
+    val stageOrder = listOf("Main Stage", "Rock Stage", "Electro Stage")
+
+    val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
+
+    val sortedPerformances = performances.sortedWith(compareBy(
+        { sdf.parse(it.start)?.time ?: 0L },        // sort by start time
+        { stageOrder.indexOf(it.stage) }           // sort by stage
+    ))
 
     val textMeasurer = rememberTextMeasurer()
     val hourStyle = ParkinsansNormalRegular.copy(
@@ -161,7 +189,6 @@ fun MultiStageTimelinePainter() {
 
                 val hoursHeight = hours.first().size.height
 
-                Log.d("TAGNNN", "gridSquareY: $gridSquareY")
                 stages.forEach { _ ->
                     drawRect(
                         color = Outline,
@@ -178,11 +205,6 @@ fun MultiStageTimelinePainter() {
                     gridSquareX = gridSquareX + stageWidth
                 }
                 gridSquareX = hoursColumnWidth
-                Log.d("TAGNNN", "20.dp.toPx(): ${20.dp.toPx()}")
-                Log.d("TAGNNN", "hoursHeight: ${hoursHeight}")
-                Log.d("TAGNNN", "hoursHeight / 2: ${hoursHeight / 2}")
-                Log.d("TAGNNN", "gridSquareY: ${gridSquareY}")
-                Log.d("TAGNNN", "__________")
                 gridSquareY = gridSquareY + 20.dp.toPx() + hoursHeight / 2
 
 
@@ -245,6 +267,85 @@ fun MultiStageTimelinePainter() {
                     topLeft = Offset(0f, stageTotalHeight),
                     size = Size(size.width, 1.dp.toPx()),
                 )
+
+                val performanceMainX = hoursColumnWidth + 4.dp.toPx()
+                val performanceRockX = hoursColumnWidth + stageWidth + 4.dp.toPx()
+                val performanceElectroX = hoursColumnWidth + stageWidth * 2 + 4.dp.toPx()
+                val performanceWidth = stageWidth - 4.dp.toPx() * 2
+                val baseY = stageTotalHeight + 1.dp.toPx() + 20.dp.toPx() + hoursHeight / 2 + 2.dp.toPx()
+                sortedPerformances.forEachIndexed { index, performance ->
+                    val stage = when {
+                        performance.stage.contains("Electro") -> Stage.Electro
+                        performance.stage.contains("Rock") -> Stage.Rock
+                        else -> Stage.Main
+                    }
+
+                    val stageX = when (stage) {
+                        Stage.Main -> performanceMainX
+                        Stage.Rock -> performanceRockX
+                        Stage.Electro -> performanceElectroX
+                    }
+
+                    val halfHoursBefore = halfHourDifference("12:00", performance.start)
+                    val completeHalfHoursBefore = floor(halfHoursBefore).toInt()
+
+                    var stageY = baseY
+                    (0..completeHalfHoursBefore).forEach {
+                        if (it != 0) {
+                            stageY = stageY + 40.dp.toPx() + getHalfHeight(hoursHeight, it)
+                        }
+                    }
+
+                    val halfHoursDuration = halfHourDifference(performance.start, performance.end)
+                    val completeHalfHoursDuration = floor(halfHoursDuration).toInt()
+
+                    var performanceHeight = - 2.dp.toPx() * 2
+
+                    (0..completeHalfHoursDuration).forEach {
+                        if (it != 0) {
+                            performanceHeight = performanceHeight + 40.dp.toPx() + getHalfHeight(hoursHeight, it)
+                        }
+                    }
+
+                    drawRoundRect(
+                        color = stage.color,        // Fill color
+                        topLeft = Offset(stageX, stageY),
+                        size = Size(performanceWidth, performanceHeight),              // Full canvas size
+                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(6.dp.toPx(), 6.dp.toPx()), // x and y radius
+                    )
+
+                    val measuredTextTime = textMeasurer.measure(
+                        text = performance.start + "–" + performance.end,
+                        style = ParkinsansNormalRegular.copy(
+                            fontSize = 12.sp,
+                            lineHeight = 12.sp,
+                            color = TextPrimary
+                        ),
+                        maxLines = Int.MAX_VALUE,
+                        constraints = androidx.compose.ui.unit.Constraints(maxWidth = (performanceWidth - 6.dp.toPx() * 2).toInt())
+                    )
+
+                    drawText(
+                        textLayoutResult = measuredTextTime,
+                        topLeft = Offset(stageX + 6.dp.toPx(), stageY + 8.dp.toPx()),
+                    )
+
+                    val measuredTextArtist = textMeasurer.measure(
+                        text = performance.artist,
+                        style = ParkinsansSemiBold.copy(
+                            fontSize = 16.sp,
+                            lineHeight = 16.sp,
+                            color = TextPrimary
+                        ),
+                        maxLines = Int.MAX_VALUE,
+                        constraints = androidx.compose.ui.unit.Constraints(maxWidth = (performanceWidth - 6.dp.toPx() * 2).toInt())
+                    )
+
+                    drawText(
+                        textLayoutResult = measuredTextArtist,
+                        topLeft = Offset(stageX + 6.dp.toPx(), stageY + 8.dp.toPx() + measuredTextTime.size.height + 6.dp.toPx()),
+                    )
+                }
             }
         }
     }
@@ -260,10 +361,33 @@ private fun getHalfHeight(hoursHeight: Int, index: Int): Int {
     }
 }
 
+enum class Stage(val color: Color) {
+    Main(Orange),
+    Rock(Purple),
+    Electro(Lime)
+}
+
 data class HourAndWidth(
     val hour: String,
     val size: IntSize
 )
+
+data class Performance(
+    val artist: String,
+    val stage: String,
+    val start: String,
+    val end: String
+)
+
+fun halfHourDifference(start: String, end: String): Float {
+    fun toMinutes(time: String): Int {
+        val (h, m) = time.split(":").map { it.toInt() }
+        return h * 60 + m
+    }
+
+    val diffMinutes = toMinutes(end) - toMinutes(start)
+    return diffMinutes / 30f // each half hour = 30 minutes
+}
 
 @Preview(name = "PortraitSmall", widthDp = 300, heightDp = 672)
 @Preview(name = "PortraitMedium", widthDp = 412, heightDp = 892)
