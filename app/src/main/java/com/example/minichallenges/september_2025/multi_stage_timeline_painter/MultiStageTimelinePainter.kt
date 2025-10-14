@@ -1,6 +1,5 @@
 package com.example.minichallenges.september_2025.multi_stage_timeline_painter
 
-import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTransformGestures
@@ -70,7 +69,6 @@ fun MultiStageTimelinePainter() {
     }
 
     LaunchedEffect(showZoom, scale) {
-        Log.d("TAGN", "showZoom: $showZoom, scale: $scale")
         if (!showZoom) return@LaunchedEffect
 
         delay(2000)
