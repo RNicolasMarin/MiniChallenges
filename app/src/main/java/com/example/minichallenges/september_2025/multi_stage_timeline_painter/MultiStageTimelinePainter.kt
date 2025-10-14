@@ -3,6 +3,7 @@ package com.example.minichallenges.september_2025.multi_stage_timeline_painter
 import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -24,8 +26,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -52,7 +57,7 @@ import kotlin.math.floor
 @Composable
 fun MultiStageTimelinePainter() {
 
-    var isStarting by remember { mutableStateOf(true) }
+    var isStarting by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         delay(3000) // 3 seconds delay
@@ -87,7 +92,7 @@ fun MultiStageTimelinePainter() {
         fontSize = 12.sp,
         lineHeight = 12.sp
     )
-    
+
     val stages = listOf("Main", "Rock", "Electro")
 
     var titleSize by remember { mutableStateOf(IntSize.Zero) }
@@ -103,7 +108,6 @@ fun MultiStageTimelinePainter() {
                 .padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 16.dp)
                 .onGloballyPositioned {
                     titleSize = it.size
-                    Log.d("TAGNN", "${it.size.width} ${it.size.height}")
                 }
         ) {
             Text(
@@ -116,27 +120,67 @@ fun MultiStageTimelinePainter() {
             )
         }
 
+        var scale by remember { mutableFloatStateOf(1f) } // 1x = 100%
+        var offset by remember { mutableStateOf(Offset.Zero) }
+
+        val minScale = 1f
+        val maxScale = 2.5f
+
         val verticalScrollState = rememberScrollState()
         val horizontalScrollState = rememberScrollState()
 
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .horizontalScroll(
-                    state = horizontalScrollState,
-                    enabled = !isStarting,
-                )
-                .verticalScroll(
-                    state = verticalScrollState,
-                    enabled = !isStarting,
-                )
+                .horizontalScroll(state = horizontalScrollState, enabled = !isStarting)
+                .verticalScroll(state = verticalScrollState, enabled = !isStarting)
+                .pointerInput(Unit) {
+                    detectTransformGestures { _, pan, zoom, _ ->
+                        if (isStarting) return@detectTransformGestures
+
+                        val newScale = (scale * zoom).coerceIn(minScale, maxScale)
+                        val scaleChange = newScale / scale
+                        scale = newScale
+
+                        offset += pan * scaleChange
+                    }
+                }
         ) {
+
+
             val configuration = LocalConfiguration.current
+            val density = LocalDensity.current
+
+            val screenWidthPx = with(density) { configuration.screenWidthDp.dp.toPx() }
+            val screenHeightPx = with(density) { configuration.screenHeightDp.dp.toPx() }
 
             var canvasHeight by remember { mutableStateOf(3000.dp) }
+            val canvasHeightPx = with(density) { canvasHeight.toPx() }
+
+            // ✅ Compute actual drawable area scaled
+            val contentWidth = screenWidthPx * scale
+            val contentHeight = canvasHeightPx * scale
+
+            // ✅ Compute bounds using screen size (not canvas size)
+            val maxOffsetX = ((contentWidth - screenWidthPx) / 2).coerceAtLeast(0f)
+            val maxOffsetY = ((contentHeight - screenHeightPx) / 2).coerceAtLeast(0f)
+
+            // ✅ Clamp offset so you can scroll only inside content
+            val clampedOffset = Offset(
+                x = offset.x.coerceIn(-maxOffsetX, maxOffsetX),
+                y = offset.y.coerceIn(-contentHeight / 2, contentHeight / 2)
+            )
+            offset = clampedOffset
+
             Canvas(
                 modifier = Modifier
                     .size(width = configuration.screenWidthDp.dp, height = canvasHeight)
+                    .graphicsLayer(
+                        scaleX = scale,
+                        scaleY = scale,
+                        translationX = clampedOffset.x,
+                        translationY = clampedOffset.y
+                    )
             ) {
 
                 val hours = (12..23).map {
