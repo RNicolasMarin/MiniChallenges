@@ -10,6 +10,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.example.minichallenges.august_2025.live_ticker_aggregator.LiveTickerAggregatorViewModel
+import com.example.minichallenges.october_2025.pumpkin_splash.PumpkinSplash
 import com.example.minichallenges.september_2025.accessible_audio_schedule.AccessibleAudioSchedule
 import com.example.minichallenges.september_2025.expandable_lineup_list.ExpandableLineupList
 import com.example.minichallenges.september_2025.map_chip_filter.MapChipFilter
@@ -27,14 +28,10 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    /*val viewmodel by viewModels<LiveTickerAggregatorViewModel>()
-                    NavigationRoot(
+                    PumpkinSplash()
+                    /*NavigationRoot(
                         navController = rememberNavController(),
-                        liveTickerAggregatorViewModel = viewmodel
                     )*/
-                    //MapChipFilter()
-                    //AccessibleAudioSchedule()
-                    MultiStageTimelinePainter()
                 }
             }
         }
