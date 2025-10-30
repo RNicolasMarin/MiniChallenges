@@ -21,4 +21,19 @@ sealed class Screen {
 
     @Serializable
     data object LiveTickerAggregator: Screen()
+
+    @Serializable
+    data object ExpandableLineupList: Screen()
+
+    @Serializable
+    data object TicketBuilder: Screen()
+
+    @Serializable
+    data object MapChipFilter: Screen()
+
+    @Serializable
+    data object AccessibleAudioSchedule: Screen()
+
+    @Serializable
+    data object MultiStageTimelinePainter: Screen()
 }

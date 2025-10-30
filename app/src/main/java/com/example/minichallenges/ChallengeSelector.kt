@@ -28,7 +28,7 @@ import com.example.minichallenges.ui.theme.HostGroteskSemiBold
 @Composable
 fun ChallengeSelector(
     challenges: List<Challenge>,
-    title: Int,
+    title: String,
     onClick: (Screen) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -57,7 +57,7 @@ fun ChallengeSelector(
 
 @Composable
 fun ChallengeSelectorTitle(
-    title: Int,
+    title: String,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -73,7 +73,7 @@ fun ChallengeSelectorTitle(
         Spacer(modifier = Modifier.height(2.dp))
 
         Text(
-            text = stringResource(title),
+            text = title,
             style = HostGroteskSemiBold,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
@@ -102,7 +102,7 @@ fun ChallengeItem(
                 modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp, horizontal = 10.dp)
             ) {
                 Text(
-                    text = stringResource(challenge.nameRes),
+                    text = challenge.name,
                     style = HostGroteskSemiBold,
                     color = TextPrimary,
                 )
@@ -110,7 +110,7 @@ fun ChallengeItem(
                 Spacer(modifier = Modifier.height(5.dp))
 
                 Text(
-                    text = stringResource(challenge.topicsRes),
+                    text = challenge.topics,
                     style = HostGroteskMedium,
                     color = TextSecondary,
                     modifier = Modifier.fillMaxWidth()
@@ -119,7 +119,7 @@ fun ChallengeItem(
                 Spacer(modifier = Modifier.height(5.dp))
 
                 Text(
-                    text = stringResource(challenge.descriptionRes),
+                    text = challenge.description,
                     style = HostGroteskNormalRegular,
                     color = TextSecondary,
                     modifier = Modifier.fillMaxWidth()
